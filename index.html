@@ -1,0 +1,1557 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>departd Mockup</title>
+<style>
+  :root { --bg:#f3f4f6; --panel:#fff; --line:#e2e5ea; --text:#1d2127; --muted:#6b7380; --accent:#ff8a00; --blue:#2f6fed; --ok:#2e9e5b; --bad:#d64545; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; font:13px/1.35 system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--text); background:var(--bg); overflow:hidden; }
+  button,input,select,textarea { font:inherit; color:inherit; }
+  button { cursor:pointer; border:1px solid var(--line); background:#fff; border-radius:6px; padding:5px 9px; }
+  button:hover { background:#f0f2f5; } button:disabled { opacity:.45; cursor:default; }
+  button.primary { background:var(--blue); color:#fff; border-color:var(--blue); } button.primary:hover { background:#2559c4; }
+  button.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+  button.ok { background:var(--ok); color:#fff; border-color:var(--ok); }
+  input[type=text],input[type=number],select,textarea { border:1px solid var(--line); border-radius:6px; padding:5px 7px; background:#fff; width:100%; }
+  textarea { resize:vertical; min-height:60px; }
+  #app { display:grid; grid-template-rows:52px 1fr; height:100%; }
+  header { display:flex; align-items:center; gap:12px; padding:0 12px; background:var(--panel); border-bottom:1px solid var(--line); min-width:0; }
+  header h1 { font-size:15px; margin:0; white-space:nowrap; }
+  #projName { color:var(--muted); white-space:nowrap; }
+  #status { display:flex; align-items:center; gap:6px; white-space:nowrap; }
+  #dot { width:9px; height:9px; border-radius:50%; background:#aaa; } #dot.live { background:var(--ok); box-shadow:0 0 0 3px #2e9e5b33; }
+  #avatars { display:flex; gap:-4px; } .av { width:26px; height:26px; border-radius:50%; color:#fff; font-size:11px; font-weight:600; display:grid; place-items:center; border:2px solid #fff; margin-left:-6px; } .av:first-child { margin-left:0; }
+  .spacer { flex:1; }
+  #views { display:flex; gap:0; } #views button { border-radius:0; margin-left:-1px; } #views button:first-child { border-radius:6px 0 0 6px; margin-left:0; } #views button:last-child { border-radius:0 6px 6px 0; }
+  #langSel { width:auto; }
+  #main { display:grid; grid-template-columns:290px 1fr 310px; min-height:0; }
+  aside { background:var(--panel); overflow:auto; min-height:0; }
+  #left { border-right:1px solid var(--line); } #right { border-left:1px solid var(--line); }
+  .sec { border-bottom:1px solid var(--line); padding:10px 12px; }
+  .sec h3 { margin:0 0 8px; font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); display:flex; align-items:center; justify-content:space-between; }
+  .row { display:flex; gap:6px; align-items:center; } .row > * { min-width:0; } .grow { flex:1; }
+  .lbl { font-size:11px; color:var(--muted); margin:8px 0 3px; }
+  .rooms { display:flex; flex-direction:column; gap:3px; }
+  .room { display:flex; align-items:center; gap:6px; padding:6px 8px; border-radius:6px; cursor:pointer; border:1px solid transparent; }
+  .room:hover { background:#f3f5f8; } .room.active { background:#fff3e0; border-color:#ffcc80; font-weight:600; }
+  .room .cnt { margin-left:auto; color:var(--muted); font-weight:400; font-size:11px; }
+  .room .ico { opacity:.7; }
+  .cat > summary { cursor:pointer; font-weight:600; padding:5px 0; list-style:none; } .cat > summary::before { content:"▸ "; color:var(--muted); } .cat[open] > summary::before { content:"▾ "; }
+  .tiles { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin:4px 0 8px; }
+  .tile { position:relative; border:1px solid var(--line); border-radius:8px; padding:6px 7px; cursor:pointer; background:#fafbfc; user-select:none; }
+  .tile:hover { border-color:var(--blue); background:#f2f6ff; }
+  .tile .n { font-weight:600; font-size:12px; padding-right:14px; } .tile .m { color:var(--muted); font-size:10.5px; }
+  .tile .ed { position:absolute; right:4px; top:3px; opacity:0; font-size:12px; } .tile:hover .ed { opacity:.8; }
+  .grp { font-size:11px; font-weight:600; margin:8px 0 3px; display:flex; align-items:center; gap:6px; } .grp i { width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .person { display:flex; align-items:center; gap:7px; padding:4px 6px; border-radius:6px; cursor:pointer; } .person:hover { background:#f3f5f8; } .person.sel { background:#fff3e0; }
+  .pav { width:22px; height:22px; border-radius:50%; background:#777 center/cover; color:#fff; font-size:9px; display:grid; place-items:center; flex:none; }
+  .person .add { margin-left:auto; font-size:11px; padding:2px 7px; }
+  .muted { color:var(--muted); } .small { font-size:11px; }
+  .roomsize { display:flex; gap:6px; align-items:center; } .roomsize b { background:#eef1f5; border-radius:6px; padding:3px 8px; font-weight:600; }
+  #center { position:relative; min-width:0; min-height:0; background:#dfe3e8; }
+  canvas#gl { position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; outline:none; }
+  #notesBtn { position:absolute; left:10px; top:10px; z-index:5; box-shadow:0 1px 4px #0002; }
+  #roomTag { position:absolute; left:50%; top:10px; transform:translateX(-50%); background:#fffd; border:1px solid var(--line); border-radius:999px; padding:3px 12px; font-weight:600; z-index:5; pointer-events:none; }
+  #banner { position:absolute; left:50%; bottom:14px; transform:translateX(-50%); background:#1d2127e6; color:#fff; border-radius:8px; padding:7px 14px; z-index:5; display:none; }
+  #overlay { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+  .note { position:absolute; pointer-events:auto; background:#fff59d; color:#3a3200; border-radius:3px; padding:7px 9px; max-width:220px; box-shadow:0 3px 10px #0003; transform:translate(-50%,-100%); white-space:pre-wrap; font-size:12px; }
+  .note b { display:block; margin-bottom:2px; }
+  .pin { position:absolute; pointer-events:auto; width:18px; height:18px; border-radius:50%; background:#ffd600; color:#3a3200; font:700 12px/18px Georgia,serif; text-align:center; transform:translate(-50%,-50%); cursor:pointer; box-shadow:0 1px 4px #0004; }
+  .tag { position:absolute; transform:translate(-50%,-100%); font-size:11px; font-weight:600; color:#fff; padding:1px 7px; border-radius:999px; white-space:nowrap; pointer-events:none; }
+  .fld { margin-bottom:2px; } .g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; } .g2 { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .small-type { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+  .sw { display:flex; flex-wrap:wrap; gap:5px; } .sw i { width:20px; height:20px; border-radius:5px; border:1px solid #0002; cursor:pointer; display:block; } .sw input[type=color] { width:26px; height:22px; padding:0; border:0; background:none; }
+  .ver { display:flex; gap:6px; align-items:center; padding:4px 0; border-bottom:1px dashed var(--line); } .ver span { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ro input,.ro textarea,.ro select { background:#f6f7f9; }
+  .imgprev { width:100%; max-height:90px; object-fit:contain; background:#f3f4f6; border-radius:6px; margin-bottom:5px; }
+  .hide { display:none !important; }
+  @media (max-width:980px) { #main { grid-template-columns:230px 1fr 250px; } #avatars { display:none; } }
+  @media (max-width:760px) { #main { grid-template-columns:1fr; grid-template-rows:1fr 220px; } #left { display:none; } #right { border-left:0; border-top:1px solid var(--line); } }
+
+  #modal { position:fixed; inset:0; z-index:100; background:#0006; display:grid; place-items:center; padding:16px; }
+  #modal .box { background:#fff; border-radius:10px; padding:16px; width:min(380px,100%); box-shadow:0 10px 40px #0005; }
+  #modal .msg { margin-bottom:10px; font-weight:600; }
+  html,body { background:var(--bg); }
+  .rotrow { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin:8px 0 4px; } .rotrow button { padding:6px 2px; font-size:12px; }
+  [hidden] { display:none !important; }
+  #aiBar { position:fixed; left:50%; bottom:12px; transform:translateX(-50%); z-index:50; width:min(760px,calc(100% - 32px)); background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 6px 24px #0003; padding:8px; }
+  #aiBar .aiw { display:flex; gap:8px; align-items:center; } #aiBar .aiL { font-weight:700; color:#d6001c; white-space:nowrap; }
+  #aiIn { flex:1; resize:none; font:inherit; padding:8px; border:1px solid var(--line); border-radius:8px; min-height:36px; max-height:90px; }
+  #aiSt { font-size:12px; color:#555; margin:4px 2px 0; } #aiSt:empty { display:none; }
+</style></head><body>
+
+<div id="app">
+  <header>
+    <h1 id="hTitle">departd Mockup</h1>
+    <span id="projName"></span>
+    <span id="status"><i id="dot"></i><span id="statusText"></span></span>
+    <span id="avatars"></span>
+    <span class="spacer"></span>
+    <button id="pwBtn"></button>
+    <select id="langSel"><option value="de">Deutsch</option><option value="zh">中文</option><option value="en">English</option></select>
+    <span id="views"><button data-v="3d"></button><button data-v="plan"></button><button data-v="front"></button><button data-v="side"></button></span>
+  </header>
+  <div id="main">
+    <aside id="left"></aside>
+    <div id="center">
+      <canvas id="gl" tabindex="0"></canvas>
+      <div id="overlay"></div>
+      <button id="notesBtn"></button>
+      <div id="roomTag"></div>
+      <div id="banner"></div>
+    </div>
+    <aside id="right"></aside>
+  </div>
+</div>
+<input type="file" id="fileImg" accept="image/*" class="hide">
+<input type="file" id="fileJson" accept="application/json,.json" class="hide">
+
+<div id="modal" hidden></div>
+<div id="aiBar" hidden><div class="aiw"><span class="aiL">✦ Claude</span><textarea id="aiIn" rows="1" placeholder="Änderung beschreiben, z. B. „Urs im Yoga-Raum in die Mitte“ …"></textarea><button id="aiGo" class="primary">Ausführen</button></div><div id="aiSt"></div></div>
+<script>// Eigenhosting-Brücke: stellt window.claude.use('db'|'room'|'user'|'downloads') über einen WebSocket-Server bereit.
+(function () {
+  const space = (new URLSearchParams(location.search).get('space') || 'kaufland-urs').toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 40) || 'kaufland-urs';
+  const wsUrl = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws?space=' + encodeURIComponent(space);
+  const docs = new Map(); // path -> data
+  const listeners = []; // {kind:'col'|'doc', path, orderBy, dir, cb, seen:Map}
+  let ws, canWrite = false, ready = false, readyWaiters = [], peers = [], myId = null, peerCbs = [], lastPresence = {}, pendingAuth = null;
+  const me = { name: '' };
+  function conn() {
+    ws = new WebSocket(wsUrl);
+    ws.onopen = () => { send({ t: 'hello' }); if (lastPresence && Object.keys(lastPresence).length) send({ t: 'presence', state: lastPresence }); if (window.__pw) send({ t: 'auth', pw: window.__pw }); };
+    ws.onmessage = ev => {
+      let m; try { m = JSON.parse(ev.data); } catch (e) { return; }
+      if (m.t === 'init') { docs.clear(); for (const [p, d] of Object.entries(m.docs)) docs.set(p, d); myId = m.id; canWrite = !!m.canWrite; ready = true; readyWaiters.splice(0).forEach(f => f()); notifyAll(); }
+      else if (m.t === 'doc') { if (m.data == null) docs.delete(m.path); else docs.set(m.path, m.data); notifyPath(m.path); }
+      else if (m.t === 'peers') { peers = m.peers; peerCbs.forEach(f => f({ peers: peers.map(p => ({ peer: p.id, isMe: p.id === myId, presence: p.state })) })); }
+      else if (m.t === 'auth') { canWrite = !!m.ok; if (pendingAuth) { pendingAuth(canWrite); pendingAuth = null; } }
+    };
+    ws.onclose = () => { setTimeout(conn, 1500); };
+  }
+  function send(o) { if (ws && ws.readyState === 1) ws.send(JSON.stringify(o)); }
+  const split = p => { const i = p.indexOf('/'); return [p.slice(0, i), p.slice(i + 1)]; };
+  const mkSnap = (l) => {
+    if (l.kind === 'doc') { const d = docs.get(l.path); return { exists: d !== undefined, data: () => d, id: split(l.path)[1] }; }
+    const col = l.path + '/'; let arr = [];
+    for (const [p, d] of docs) if (p.startsWith(col) && !p.slice(col.length).includes('/')) arr.push({ id: p.slice(col.length), data: () => d, _p: p, _d: d });
+    if (l.orderBy) arr.sort((a, b) => { const x = a._d[l.orderBy], y = b._d[l.orderBy]; return (x > y ? 1 : x < y ? -1 : 0) * (l.dir === 'desc' ? -1 : 1); });
+    const changes = [];
+    const seen = new Map(arr.map(a => [a._p, JSON.stringify(a._d)]));
+    for (const a of arr) { const prev = l.seen.get(a._p); if (prev === undefined) changes.push({ type: 'added', doc: a }); else if (prev !== seen.get(a._p)) changes.push({ type: 'modified', doc: a }); }
+    for (const [p] of l.seen) if (!seen.has(p)) changes.push({ type: 'removed', doc: { id: p.slice(col.length), data: () => ({}) } });
+    l.seen = seen;
+    return { docs: arr, docChanges: () => changes, empty: !arr.length };
+  };
+  function fire(l) { try { l.cb(mkSnap(l)); } catch (e) { console.error(e); } }
+  const notifyAll = () => listeners.forEach(fire);
+  function notifyPath(p) { for (const l of listeners) { if (l.kind === 'doc' ? l.path === p : p.startsWith(l.path + '/')) fire(l); } }
+  const norm = d => JSON.parse(JSON.stringify(d));
+  const docRef = path => ({
+    path,
+    get: async () => { await waitReady(); const d = docs.get(path); return { exists: d !== undefined, data: () => d, id: split(path)[1] }; },
+    set: async d => { chk(); d = norm(d); docs.set(path, d); send({ t: 'set', path, data: d }); },
+    update: async d => { chk(); d = norm(d); docs.set(path, { ...(docs.get(path) || {}), ...d }); send({ t: 'update', path, data: d }); },
+    delete: async () => { chk(); docs.delete(path); send({ t: 'del', path }); },
+    onSnapshot: (cb) => { const l = { kind: 'doc', path, cb, seen: new Map() }; listeners.push(l); waitReady().then(() => fire(l)); return () => { const i = listeners.indexOf(l); if (i >= 0) listeners.splice(i, 1); }; }
+  });
+  const colRef = (path, o = {}) => ({
+    doc: id => docRef(path + '/' + id),
+    orderBy: (f, dir) => colRef(path, { orderBy: f, dir }),
+    onSnapshot: cb => { const l = { kind: 'col', path, orderBy: o.orderBy, dir: o.dir, cb, seen: new Map() }; listeners.push(l); waitReady().then(() => fire(l)); return () => { const i = listeners.indexOf(l); if (i >= 0) listeners.splice(i, 1); }; }
+  });
+  function chk() { if (!canWrite) { const e = new Error('Nur Ansicht'); e.code = 'invalid_argument'; throw e; } }
+  const waitReady = () => ready ? Promise.resolve() : new Promise(r => readyWaiters.push(r));
+  const caps = {
+    db: { doc: docRef, collection: p => colRef(p) },
+    room: { presence: async s => { lastPresence = s; send({ t: 'presence', state: s }); }, onPeers: f => { peerCbs.push(f); f({ peers: peers.map(p => ({ peer: p.id, isMe: p.id === myId, presence: p.state })) }); } },
+    user: {
+      me: async () => ({ name: me.name }), can: async () => { await waitReady(); return canWrite; }, id: async () => myId, isOwner: () => canWrite, canEdit: () => canWrite,
+      unlock: pw => new Promise(res => { window.__pw = pw; pendingAuth = res; send({ t: 'auth', pw }); setTimeout(() => { if (pendingAuth) { pendingAuth(false); pendingAuth = null; } }, 6000); }),
+      canWrite: () => canWrite
+    },
+    downloads: { save: async ({ filename, data }) => { const b = data instanceof Blob ? data : new Blob([data]); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = filename; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); } }
+  };
+  window.claude = { use: async n => caps[n] || null };
+  window.__selfhost = true;
+  conn();
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/exporters/GLTFExporter.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/exporters/OBJExporter.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+// Oberflächentexte: [Deutsch, English, 中文]
+const STR = {
+  title: ['departd Mockup', 'departd Mockup', 'departd Mockup'],
+  project: ['Projekt', 'Project', '项目'],
+  live: ['Live', 'Live', '在线'],
+  offline: ['Offline', 'Offline', '离线'],
+  pwBtn: ['🔒 Passwort zum Bearbeiten', '🔒 Password to edit', '🔒 输入密码以编辑'],
+  pwActive: ['✓ Bearbeitung aktiv (sperren)', '✓ Editing active (lock)', '✓ 编辑已启用（锁定）'],
+  pwPrompt: ['Passwort zum Bearbeiten:', 'Password to edit:', '编辑密码：'],
+  pwWrong: ['Falsches Passwort.', 'Wrong password.', '密码错误。'],
+  namePrompt: ['Wie heißt du? (wird anderen angezeigt)', 'What is your name? (shown to others)', '你的名字？（会显示给其他人）'],
+  v3d: ['3D', '3D', '3D'], vplan: ['Grundriss', 'Plan', '平面图'], vfront: ['Vorne', 'Front', '正面'], vside: ['Seite', 'Side', '侧面'],
+  rooms: ['Räume', 'Rooms', '房间'],
+  mainRoom: ['Hauptraum', 'Main room', '主房间'],
+  mainHint: ['Hier liegen alle Personen und Objekte.', 'All people and objects live here.', '所有人物和物件都在这里。'],
+  addRoom: ['+ Neuer Raum', '+ New room', '+ 新房间'],
+  newRoomName: ['Name des neuen Raums (z. B. Set 3):', 'Name of the new room (e.g. Set 3):', '新房间名称（例如 Set 3）：'],
+  renameRoom: ['Raum umbenennen:', 'Rename room:', '重命名房间：'],
+  deleteRoom: ['Raum löschen', 'Delete room', '删除房间'],
+  confirmDeleteRoom: ['Raum „{0}“ mit allen Objekten löschen?', 'Delete room “{0}” with all its objects?', '删除房间“{0}”及其所有物件？'],
+  dupRoom: ['Raum duplizieren', 'Duplicate room', '复制房间'],
+  objectsCount: ['{0} Objekte', '{0} objects', '{0} 个物件'],
+  catalog: ['Objektkatalog', 'Object catalog', '物件目录'],
+  cast: ['Besetzung', 'Cast', '人员'],
+  castMain: ['Alle Personen', 'All people', '所有人物'],
+  castFromMain: ['Aus dem Hauptraum hinzufügen', 'Add from main room', '从主房间添加'],
+  castNone: ['Noch niemand im Raum.', 'Nobody in this room yet.', '房间里还没有人。'],
+  castAllIn: ['Alle Personen sind schon im Raum.', 'Everybody is already in this room.', '所有人都已在房间里。'],
+  roomSize: ['Raumgröße (fest)', 'Room size (fixed)', '房间尺寸（固定）'],
+  snap: ['Auf 10 cm einrasten', 'Snap to 10 cm', '吸附到 10 厘米'],
+  showNotes: ['📝 Alle Notizen zeigen', '📝 Show all notes', '📝 显示所有备注'],
+  hideNotes: ['📝 Notizen ausblenden', '📝 Hide notes', '📝 隐藏备注'],
+  props: ['Eigenschaften', 'Properties', '属性'],
+  nothingSelected: ['Nichts ausgewählt. Klicke ein Objekt an.', 'Nothing selected. Click an object.', '未选择。请点击一个物件。'],
+  name: ['Name', 'Name', '名称'], note: ['Notiz', 'Note', '备注'],
+  size: ['Größe B / T / H (cm)', 'Size W / D / H (cm)', '尺寸 宽/深/高（厘米）'],
+  pos: ['Position von links / von hinten (cm)', 'Position from left / from back (cm)', '位置 距左/距后（厘米）'],
+  elev: ['Höhe über Boden (cm)', 'Height above floor (cm)', '离地高度（厘米）'],
+  rot: ['Drehung (°)', 'Rotation (°)', '旋转（°）'],
+  color: ['Farbe', 'Color', '颜色'],
+  image: ['Bild auf der Vorderseite', 'Image on the front', '正面图片'],
+  upload: ['Bild wählen …', 'Choose image …', '选择图片…'], remove: ['Entfernen', 'Remove', '移除'],
+  group: ['Gruppe', 'Group', '分组'], photo: ['Foto', 'Photo', '照片'], photoUp: ['Foto hochladen …', 'Upload photo …', '上传照片…'],
+  duplicate: ['Duplizieren', 'Duplicate', '复制'], delete: ['Löschen', 'Delete', '删除'],
+  copyToRoom: ['In Raum kopieren …', 'Copy to room …', '复制到房间…'],
+  moveToRoom: ['In Raum verschieben …', 'Move to room …', '移动到房间…'],
+  copyDone: ['Kopiert nach „{0}“.', 'Copied to “{0}”.', '已复制到“{0}”。'],
+  versions: ['Versionen', 'Versions', '版本'],
+  saveVersion: ['Version speichern', 'Save version', '保存版本'],
+  versionName: ['Name der Version:', 'Version name:', '版本名称：'],
+  open: ['Öffnen', 'Open', '打开'],
+  confirmRestore: ['Version „{0}“ für alle wiederherstellen? Der aktuelle Stand wird ersetzt.', 'Restore version “{0}” for everyone? The current state will be replaced.', '为所有人恢复版本“{0}”？当前状态将被替换。'],
+  noVersions: ['Noch keine Versionen.', 'No versions yet.', '暂无版本。'],
+  export3d: ['3D exportieren', 'Export 3D', '导出 3D'],
+  exportScope: ['Aktueller Raum', 'Current room', '当前房间'],
+  layoutFile: ['Layout-Datei', 'Layout file', '布局文件'],
+  download: ['Herunterladen', 'Download', '下载'], openFile: ['Öffnen …', 'Open …', '打开…'],
+  confirmImport: ['Layout aus Datei für alle laden? Der aktuelle Stand wird ersetzt.', 'Load layout from file for everyone? The current state will be replaced.', '为所有人从文件加载布局？当前状态将被替换。'],
+  viewOnly: ['Nur Ansicht – Passwort eingeben zum Bearbeiten', 'View only – enter the password to edit', '仅查看——输入密码以编辑'],
+  rename: ['Umbenennen', 'Rename', '重命名'],
+  renamePrompt: ['Neuer Name für den Katalogeintrag (leer = Original):', 'New name for the catalog entry (empty = original):', '目录条目的新名称（留空=恢复原名）：'],
+  you: ['du', 'you', '你'],
+  front: ['Vorderseite', 'Front', '正面'],
+  reconnecting: ['Verbindung getrennt – verbinde neu …', 'Disconnected – reconnecting …', '连接中断——正在重连…'],
+  denied: ['Keine Berechtigung zum Bearbeiten.', 'No permission to edit.', '没有编辑权限。'],
+  rolesSoon: ['Rollen folgen', 'Roles coming soon', '角色即将推出'],
+};
+const LANGS = { de: 0, en: 1, zh: 2 };
+function makeT(lang) {
+  const i = LANGS[lang] ?? 0;
+  return (k, ...a) => { const v = STR[k] ? STR[k][i] : k; return a.length ? v.replace(/\{(\d)\}/g, (_, n) => a[n]) : v; };
+}
+function detectLang() {
+  const saved = (() => { try { return localStorage.getItem('dm_lang'); } catch (e) { return null; } })();
+  if (saved && saved in LANGS) return saved;
+  const n = (navigator.language || 'de').toLowerCase();
+  return n.startsWith('zh') ? 'zh' : n.startsWith('de') ? 'de' : n.startsWith('en') ? 'en' : 'de';
+}
+
+STR.editOn = ['✓ Bearbeitung aktiv', '✓ Editing active', '✓ 编辑已启用'];
+STR.viewOnlyChip = ['Nur Ansicht', 'View only', '仅查看'];
+STR.viewOnly = ['Nur Ansicht – zum Bearbeiten braucht dein Konto Mitwirken-Rechte (Contributor).', 'View only – editing needs Contributor access.', '仅查看——编辑需要“贡献者”权限。'];
+STR.exportZip = ['ZIP mit GLB + OBJ speichern', 'Save ZIP with GLB + OBJ', '保存含 GLB + OBJ 的 ZIP'];
+
+// Objektkatalog: Maße in cm (B × T × H), Modelle aus einfachen 3D-Formen.
+// Koordinaten im Modell: Meter, Ursprung = Mitte der Grundfläche am Boden, Vorderseite = +Z.
+
+
+const matCache = new Map();
+function mat(col, o = {}) {
+  const key = col + JSON.stringify(o);
+  if (!matCache.has(key)) matCache.set(key, new THREE.MeshStandardMaterial({ color: col, roughness: 0.75, metalness: 0.05, ...o }));
+  return matCache.get(key);
+}
+function B(g, w, h, d, x, y, z, col, o) { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), typeof col === 'string' || typeof col === 'number' ? mat(col, o) : col); m.position.set(x, y + h / 2, z); m.castShadow = m.receiveShadow = true; g.add(m); return m; }
+function C(g, rt, rb, h, x, y, z, col, o, seg = 24) { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(col, o)); m.position.set(x, y + h / 2, z); m.castShadow = m.receiveShadow = true; g.add(m); return m; }
+function Sph(g, r, x, y, z, col, o) { const m = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 14), mat(col, o)); m.position.set(x, y, z); m.castShadow = true; g.add(m); return m; }
+const DARK = '#2b2f36', METAL = '#9aa3ad', WOOD = '#b98b5a', WHITE = '#f4f4f4';
+const PRODUCT = ['#e57373', '#64b5f6', '#ffd54f', '#81c784', '#ba68c8', '#ffb74d', '#4db6ac'];
+
+function products(g, W, d, y, h, z, seed) {
+  const n = Math.max(2, Math.round(W / 0.14));
+  for (let i = 0; i < n; i++) {
+    const c = PRODUCT[(i * 3 + seed) % PRODUCT.length];
+    const bw = (W - 0.06) / n * 0.82;
+    B(g, bw, h * (0.6 + ((i * 7 + seed) % 4) * 0.1), d * 0.7, -W / 2 + 0.03 + (i + 0.5) * ((W - 0.06) / n), y, z, c);
+  }
+}
+function shelfUnit(g, W, D, H, c, z, products_ = true, backZ = null) {
+  const t = 0.03;
+  B(g, W, H, 0.02, 0, 0, backZ !== null ? backZ : z - D / 2 + 0.01, METAL);
+  B(g, t, H, D, -W / 2 + t / 2, 0, z, c); B(g, t, H, D, W / 2 - t / 2, 0, z, c);
+  const levels = Math.max(3, Math.round(H / 0.42));
+  for (let i = 0; i <= levels; i++) {
+    const y = 0.08 + i * ((H - 0.08 - t) / levels);
+    B(g, W - 2 * t, t, D, 0, y, z, c);
+    if (products_ && i < levels) products(g, W - 2 * t, D, y + t, (H - 0.1) / levels * 0.7, z, i + Math.round(W * 10));
+  }
+}
+function cartBody(g, W, D, H, c, bar) {
+  B(g, W * 0.95, 0.04, D * 0.8, 0, H * 0.3, 0.05 * D, METAL);
+  const bh = H * 0.42, by = H * 0.3 + 0.04, tr = { transparent: true, opacity: 0.5 };
+  B(g, W * 0.95, bh, 0.012, 0, by, D * 0.45, c, tr); B(g, W * 0.7, bh, 0.012, 0, by, -D * 0.35, c, tr);
+  B(g, 0.012, bh, D * 0.8, -W * 0.475, by, 0.05 * D, c, tr); B(g, 0.012, bh, D * 0.8, W * 0.475, by, 0.05 * D, c, tr);
+  B(g, W * 0.95, 0.035, 0.035, 0, H - 0.04, -D * 0.45, METAL);
+  B(g, 0.03, H * 0.6, 0.03, -W * 0.45, H * 0.3, -D * 0.42, METAL); B(g, 0.03, H * 0.6, 0.03, W * 0.45, H * 0.3, -D * 0.42, METAL);
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) { C(g, 0.04, 0.04, 0.03, sx * W * 0.38, 0, sz * D * 0.38, DARK); B(g, 0.02, H * 0.3 - 0.03, 0.02, sx * W * 0.38, 0.03, sz * D * 0.38, METAL); }
+}
+
+// Frontbild: Position und Größe der Fläche je Typ
+const frontImg = {
+  screen: (W, D, H) => ({ w: W * 0.96, h: H * 0.9, cy: H / 2, z: D / 2 + 0.002 }),
+  monitor: (W, D, H) => ({ w: W * 0.94, h: H * 0.3, cy: H - H * 0.2, z: D * 0.5 + 0.002 }),
+  wallpanel: (W, D, H) => ({ w: W * 0.94, h: H * 0.94, cy: H / 2, z: D / 2 + 0.002 }),
+  hangsign: (W, D, H) => ({ w: W * 0.96, h: H * 0.26, cy: H - H * 0.13 - 0.02, z: D / 2 + 0.002 }),
+  pallet: (W, D, H) => ({ w: W * 0.9, h: (H - 0.15) * 0.9, cy: 0.15 + (H - 0.15) / 2, z: D / 2 + 0.002 }),
+  stand: (W, D, H) => ({ w: W * 0.94, h: H * 0.8, cy: H * 0.5 + 0.05, z: D * 0.05 + 0.007 }),
+};
+
+const CATEGORIES = [
+  { id: 'basis', de: 'Basis', en: 'Basics', zh: '基础' },
+  { id: 'supermarkt', de: 'Supermarkt', en: 'Supermarket', zh: '超市' },
+  { id: 'fitness', de: 'Fitness', en: 'Fitness', zh: '健身' },
+  { id: 'aktionen', de: 'Aktionen & Requisiten', en: 'Actions & props', zh: '活动与道具' },
+  { id: 'technik', de: 'Technik & Bühne', en: 'Tech & stage', zh: '技术与舞台' },
+  { id: 'moebel', de: 'Möbel', en: 'Furniture', zh: '家具' },
+];
+
+const PERSON_GROUPS = [
+  { id: 'hauptrollen', de: 'Hauptrollen', en: 'Main roles', zh: '主角', color: '#e53935' },
+  { id: 'kaufland', de: 'Kaufland-Gesichter', en: 'Kaufland faces', zh: 'Kaufland 面孔', color: '#8e24aa' },
+  { id: 'solo', de: 'Solo-Acts', en: 'Solo acts', zh: '独唱表演', color: '#3949ab' },
+  { id: 'bodybuilder', de: 'Bodybuilder', en: 'Bodybuilders', zh: '健美运动员', color: '#fb8c00' },
+  { id: 'running', de: 'Running Club', en: 'Running club', zh: '跑步俱乐部', color: '#43a047' },
+  { id: 'cheer', de: 'Cheerleaderinnen', en: 'Cheerleaders', zh: '啦啦队', color: '#ec407a' },
+  { id: 'moshpit', de: 'Kostüme/Moshpit', en: 'Costumes/mosh pit', zh: '服装/摇滚区', color: '#6d4c41' },
+  { id: 'creator', de: 'Creator', en: 'Creators', zh: '创作者', color: '#00acc1' },
+  { id: 'sonstige', de: 'Sonstige', en: 'Others', zh: '其他', color: '#757575' },
+];
+
+// type: [cat, B, T, H, Farbe, y(Höhe über Boden), de, en, zh, Bildfläche?]
+const T = {
+  placeholder: ['basis', 100, 100, 100, '#8fa3b8', 0, 'Platzhalter', 'Placeholder', '占位物'],
+  person: ['basis', 50, 30, 175, '#757575', 0, 'Person', 'Person', '人物'],
+  floor: ['basis', 200, 200, 1, '#ffb74d', 0, 'Bodenfläche', 'Floor area', '地面区域'],
+  cart: ['supermarkt', 60, 100, 100, '#c62828', 0, 'Einkaufswagen', 'Shopping cart', '购物车'],
+  shelf: ['supermarkt', 100, 45, 200, '#d9dde3', 0, 'Supermarktregal', 'Supermarket shelf', '超市货架'],
+  island: ['supermarkt', 100, 90, 160, '#d9dde3', 0, 'Regalinsel (2-seitig)', 'Shelf island (2-sided)', '双面货架岛'],
+  pallet: ['supermarkt', 120, 80, 150, '#d32f2f', 0, 'Aktionspalette', 'Promo pallet', '促销托盘', true],
+  produce: ['supermarkt', 150, 80, 110, '#8d6e63', 0, 'Obst- & Gemüsestand', 'Fruit & veg stand', '果蔬摊'],
+  hangsign: ['supermarkt', 120, 5, 60, '#e53935', 200, 'Hängeschild', 'Hanging sign', '吊牌', true],
+  bench: ['fitness', 140, 55, 110, '#263238', 0, 'Hantelbank', 'Weight bench', '哑铃凳'],
+  rack: ['fitness', 120, 140, 230, '#37474f', 0, 'Power Rack', 'Power rack', '力量架'],
+  treadmill: ['fitness', 75, 170, 140, '#455a64', 0, 'Laufband', 'Treadmill', '跑步机'],
+  weightrack: ['fitness', 120, 50, 90, '#37474f', 0, 'Hantel- & Kettlebell-Ablage', 'Dumbbell & kettlebell rack', '哑铃与壶铃架'],
+  yogamat: ['fitness', 60, 180, 1, '#7e57c2', 0, 'Yogamatte', 'Yoga mat', '瑜伽垫'],
+  cartbar: ['fitness', 200, 60, 100, '#c62828', 0, 'Einkaufswagen-Langhantel', 'Shopping-cart barbell', '购物车杠铃'],
+  liftrig: ['fitness', 300, 100, 230, '#c62828', 0, 'Stoßheberin-Set (Langhantel mit Einkaufswagen)', 'Lifter set (cart barbell)', '举重组合（购物车杠铃）'],
+  buzzer: ['aktionen', 40, 40, 120, '#d32f2f', 0, 'Buzzer-Säule', 'Buzzer column', '抢答柱'],
+  kitchen: ['aktionen', 120, 60, 95, '#cfd8dc', 0, 'Mobile Kochstation', 'Mobile cooking station', '移动烹饪台'],
+  dj: ['aktionen', 150, 60, 105, '#212121', 0, 'DJ-Pult', 'DJ booth', 'DJ台'],
+  auction: ['aktionen', 60, 50, 120, '#6d4c41', 0, 'Auktionspult', 'Auction lectern', '拍卖台'],
+  stand: ['aktionen', 60, 40, 180, '#1976d2', 0, 'Aufsteller', 'Display stand', '展架', true],
+  screen: ['technik', 160, 10, 90, '#111111', 90, 'Bildschirm', 'Screen', '屏幕', true],
+  monitor: ['technik', 60, 30, 120, '#111111', 0, 'Monitor mit Ständer', 'Monitor with stand', '带支架显示器', true],
+  softbox: ['technik', 60, 60, 200, '#fafafa', 0, 'Softbox', 'Softbox', '柔光箱'],
+  wallpanel: ['technik', 200, 10, 250, '#eceff1', 0, 'Wandpaneel', 'Wall panel', '墙板', true],
+  arch: ['technik', 300, 40, 300, '#5c6bc0', 0, 'Eingangsbogen', 'Entrance arch', '入口拱门'],
+  counter: ['moebel', 200, 60, 105, '#8d6e63', 0, 'Theke', 'Counter', '柜台'],
+  table: ['moebel', 150, 70, 95, '#455a64', 0, 'Präsentationstisch', 'Presentation table', '展示桌'],
+  podium: ['moebel', 150, 150, 30, '#bdbdbd', 0, 'Rundes Podest', 'Round podium', '圆形展台'],
+  bookshelf: ['moebel', 100, 40, 180, '#a1887f', 0, 'Regal', 'Shelf', '架子'],
+  sofa: ['moebel', 200, 90, 85, '#607d8b', 0, 'Sofa', 'Sofa', '沙发'],
+  stool: ['moebel', 40, 40, 75, '#37474f', 0, 'Barhocker', 'Bar stool', '吧凳'],
+  plant: ['moebel', 50, 50, 120, '#43a047', 0, 'Pflanze', 'Plant', '植物'],
+};
+
+const DEFS = {};
+for (const [id, v] of Object.entries(T)) DEFS[id] = { id, cat: v[0], w: v[1], d: v[2], h: v[3], color: v[4], y: v[5], names: { de: v[6], en: v[7], zh: v[8] }, img: !!v[9] };
+
+function typeName(type, lang, overrides) {
+  if (overrides && overrides[type]) return overrides[type];
+  const d = DEFS[type]; return d ? (d.names[lang] || d.names.de) : type;
+}
+
+const BUILD = {
+  placeholder(g, W, D, H, c) { B(g, W, H, D, 0, 0, 0, c, { transparent: true, opacity: 0.4, depthWrite: false }); },
+  floor(g, W, D, H, c) { B(g, W, Math.max(H, 0.005), D, 0, 0, 0, c, { transparent: true, opacity: 0.7 }); },
+  cart(g, W, D, H, c) { cartBody(g, W, D, H, c); },
+  shelf(g, W, D, H, c) { shelfUnit(g, W, D, H, c, 0); },
+  island(g, W, D, H, c) {
+    const half = D / 2 - 0.02;
+    shelfUnit(g, W, half, H, c, -D / 4 - 0.005, true, 0);
+    shelfUnit(g, W, half, H, c, D / 4 + 0.005, true, 0);
+    B(g, W, 0.04, D, 0, H, 0, c);
+  },
+  pallet(g, W, D, H, c) {
+    for (const x of [-W / 2 + 0.04, 0, W / 2 - 0.04]) B(g, 0.08, 0.1, D, x, 0, 0, WOOD);
+    B(g, W, 0.04, D, 0, 0.1, 0, WOOD);
+    const rows = Math.max(1, Math.round((H - 0.14) / 0.35)), ch = (H - 0.14) / rows;
+    for (let r = 0; r < rows; r++) for (let i = 0; i < 3; i++) B(g, W / 3 - 0.02, ch - 0.01, D - 0.04, -W / 3 + i * W / 3, 0.14 + r * ch, 0, i % 2 ? c : '#ef9a9a');
+  },
+  produce(g, W, D, H, c) {
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) B(g, 0.05, H * 0.7, 0.05, sx * (W / 2 - 0.05), 0, sz * (D / 2 - 0.05), c);
+    B(g, W, 0.05, D, 0, H * 0.7, 0, c);
+    const cols = ['#e53935', '#fdd835', '#7cb342'];
+    for (let i = 0; i < 3; i++) {
+      const cx = -W / 3 + i * W / 3;
+      B(g, W / 3 - 0.06, 0.12, D - 0.14, cx, H * 0.7 + 0.05, 0, '#a1887f');
+      for (let k = 0; k < 6; k++) Sph(g, 0.045, cx + ((k % 3) - 1) * 0.09, H * 0.7 + 0.2, ((k / 3 | 0) - 0.5) * 0.14, cols[i]);
+    }
+    B(g, W, H * 0.3, 0.03, 0, H * 0.7 + 0.05, -D / 2 + 0.015, c);
+  },
+  hangsign(g, W, D, H, c) {
+    // H = Gesamthöhe; Tafel oben, zwei Seile nach oben zur Decke
+    const bh = Math.min(H, 0.5 * H + 0.0);
+    B(g, W, bh, D, 0, H - bh, 0, c);
+    B(g, 0.01, H - bh, 0.01, -W * 0.4, 0, 0, METAL);
+  },
+  bench(g, W, D, H, c) {
+    B(g, W * 0.65, 0.12, D, W * 0.12, 0.38, 0, c);
+    B(g, W * 0.18, 0.45, D, -W * 0.38, 0.0, 0, DARK);
+    B(g, 0.06, 0.4, D * 0.9, W * 0.35, 0, 0, DARK);
+    for (const z of [-1, 1]) { B(g, 0.05, H * 0.75, 0.05, -W * 0.45, 0.3, z * D * 0.4, METAL); B(g, 0.1, 0.05, 0.12, -W * 0.45, H * 0.75 + 0.3 - 0.05, z * D * 0.4, METAL); }
+  },
+  rack(g, W, D, H, c) {
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) B(g, 0.07, H, 0.07, sx * (W / 2 - 0.04), 0, sz * (D / 2 - 0.04), c);
+    B(g, W, 0.07, 0.07, 0, H - 0.07, -D / 2 + 0.04, c); B(g, W, 0.07, 0.07, 0, H - 0.07, D / 2 - 0.04, c);
+    for (const sx of [-1, 1]) B(g, 0.07, 0.07, D, sx * (W / 2 - 0.04), H - 0.07, 0, c);
+    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, W * 1.5, 10), mat(METAL)); bar.rotation.z = Math.PI / 2; bar.position.set(0, 1.3, 0); g.add(bar);
+    for (const sx of [-1, 1]) for (let i = 0; i < 2; i++) C(g, 0.22 - i * 0.03, 0.22 - i * 0.03, 0.04, sx * (W * 0.7 - i * 0.05), 1.3 - 0.22 + 0.22, 0, '#222').rotation.z = Math.PI / 2;
+  },
+  treadmill(g, W, D, H, c) {
+    B(g, W, 0.18, D * 0.8, 0, 0.1, D * 0.1, c); B(g, W * 0.88, 0.03, D * 0.76, 0, 0.28, D * 0.1, '#111');
+    for (const sx of [-1, 1]) B(g, 0.05, H * 0.62, 0.05, sx * W * 0.42, 0.28, -D * 0.28, METAL);
+    B(g, W * 0.95, 0.14, 0.1, 0, H - 0.2, -D * 0.34, DARK); B(g, W * 0.6, 0.02, 0.07, 0, H - 0.05, -D * 0.34, '#4fc3f7');
+  },
+  weightrack(g, W, D, H, c) {
+    for (const sx of [-1, 1]) B(g, 0.05, H, D, sx * (W / 2 - 0.03), 0, 0, c);
+    for (const y of [H * 0.35, H * 0.7]) B(g, W, 0.04, D, 0, y, 0, c);
+    for (let i = 0; i < 6; i++) { const x = -W / 2 + 0.12 + i * (W - 0.24) / 5; for (const dx of [-0.05, 0.05]) { const m = C(g, 0.035, 0.035, 0.05, x + dx, H * 0.7 + 0.04, 0, '#222'); m.rotation.z = Math.PI / 2; } C(g, 0.012, 0.012, 0.12, x, H * 0.7 + 0.04, 0, METAL).rotation.z = Math.PI / 2; }
+    for (let i = 0; i < 4; i++) { const x = -W / 2 + 0.2 + i * (W - 0.4) / 3; Sph(g, 0.1, x, H * 0.35 + 0.14, 0, '#c62828'); }
+  },
+  yogamat(g, W, D, H, c) { B(g, W, Math.max(H, 0.008), D, 0, 0, 0, c); },
+  cartbar(g, W, D, H, c) {
+    const g2 = new THREE.Group(); cartBody(g2, 0.6, D, H, c); g.add(g2);
+    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, W, 10), mat(METAL)); bar.rotation.z = Math.PI / 2; bar.position.set(0, H * 0.78, 0); g.add(bar);
+    for (const sx of [-1, 1]) for (let i = 0; i < 3; i++) { const p = C(g, 0.2 - i * 0.04, 0.2 - i * 0.04, 0.03, sx * (W / 2 - 0.1 - i * 0.04), H * 0.78, 0, '#222'); p.rotation.z = Math.PI / 2; p.position.y = H * 0.78; }
+  },
+  liftrig(g, W, D, H, c) {
+    const skin = '#f1c9a5', shirt = '#3949ab';
+    for (const sx of [-1, 1]) C(g, 0.055, 0.045, 0.82, sx * 0.09, 0, 0, '#37474f', {}, 12);
+    const tor = C(g, 0.17, 0.13, 0.58, 0, 0.82, 0, shirt, {}, 16); tor.scale.z = 0.65;
+    Sph(g, 0.115, 0, 1.56, 0, skin);
+    const barY = 1.95;
+    for (const sx of [-1, 1]) {
+      const dx = sx * 0.17, dy = barY - 1.36, len = Math.hypot(dx, dy);
+      const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.035, len, 10), mat(shirt));
+      arm.position.set(sx * (0.19 + 0.085), 1.36 + dy / 2, 0); arm.rotation.z = -Math.atan2(dx, dy); arm.castShadow = true; g.add(arm);
+      Sph(g, 0.045, sx * 0.36, barY - 0.02, 0, skin);
+    }
+    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, W, 12), mat(METAL)); bar.rotation.z = Math.PI / 2; bar.position.set(0, barY, 0); bar.castShadow = true; g.add(bar);
+    const food = ['#e53935', '#43a047', '#fdd835', '#fb8c00', '#66bb6a', '#c2185b'];
+    for (const sx of [-1, 1]) {
+      const cx = sx * (W / 2 - 0.3), g2 = new THREE.Group(); cartBody(g2, 0.6, 0.9, 1.0, c); g2.position.set(cx, 0.85, 0); g.add(g2);
+      for (let i = 0; i < 6; i++) Sph(g, 0.09, cx + ((i % 3) - 1) * 0.17, 1.27 + Math.floor(i / 3) * 0.17, ((i * 7) % 3 - 1) * 0.12, food[(i + (sx > 0 ? 3 : 0)) % 6]);
+      B(g, 0.02, 0.1, 0.02, cx - 0.2, barY - 0.1, 0, METAL); B(g, 0.02, 0.1, 0.02, cx + 0.2, barY - 0.1, 0, METAL);
+    }
+  },
+  buzzer(g, W, D, H, c) { C(g, W * 0.4, W * 0.48, H * 0.82, 0, 0, 0, DARK); C(g, W * 0.46, W * 0.46, 0.04, 0, H * 0.82, 0, METAL); const b = C(g, W * 0.3, W * 0.34, 0.07, 0, H * 0.86, 0, c); b.material = mat(c, { emissive: c, emissiveIntensity: 0.25 }); },
+  kitchen(g, W, D, H, c) {
+    B(g, W, H - 0.04, D, 0, 0, 0, c); B(g, W + 0.02, 0.04, D + 0.02, 0, H - 0.04, 0, '#90a4ae');
+    for (const x of [-W * 0.22, W * 0.22]) { C(g, 0.09, 0.09, 0.01, x, H, 0, DARK); } C(g, 0.1, 0.1, 0.14, -W * 0.22, H + 0.01, 0, METAL);
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) C(g, 0.04, 0.04, 0.03, sx * (W / 2 - 0.06), 0, sz * (D / 2 - 0.06), DARK);
+  },
+  dj(g, W, D, H, c) {
+    B(g, W, H - 0.08, D, 0, 0, 0, c); B(g, W * 1.02, 0.04, D * 1.02, 0, H - 0.08, 0, '#37474f');
+    for (const x of [-W * 0.3, W * 0.3]) { C(g, 0.16, 0.16, 0.03, x, H - 0.04, 0, '#455a64'); C(g, 0.13, 0.13, 0.015, x, H - 0.015, 0, '#111'); }
+    B(g, 0.22, 0.04, 0.3, 0, H - 0.04, 0, '#546e7a'); for (let i = 0; i < 4; i++) B(g, 0.02, 0.02, 0.04, -0.07 + i * 0.047, H, 0.02, '#ff7043');
+  },
+  auction(g, W, D, H, c) {
+    B(g, W * 0.9, H * 0.78, D * 0.8, 0, 0, -D * 0.05, c);
+    const t = B(g, W, 0.04, D, 0, H * 0.78, 0, '#4e342e'); t.rotation.x = -0.18; t.position.y = H * 0.82;
+    C(g, 0.015, 0.015, 0.2, W * 0.25, H * 0.85, 0, '#a1887f').rotation.z = Math.PI / 2; C(g, 0.03, 0.03, 0.08, W * 0.35, H * 0.86, 0, '#a1887f').rotation.z = Math.PI / 2;
+  },
+  stand(g, W, D, H, c) {
+    B(g, W, H * 0.92, 0.012, 0, 0.06, D * 0.05, c);
+    B(g, W * 1.02, 0.06, D * 0.5, 0, 0, D * 0.05, DARK);
+    B(g, 0.03, H * 0.06, 0.03, 0, H * 0.94, D * 0.05, METAL);
+  },
+  screen(g, W, D, H, c) {
+    B(g, W, H, D, 0, 0, 0, '#111'); B(g, W * 0.97, H * 0.93, 0.004, 0, H * 0.035, D / 2 + 0.001, '#1c2733');
+  },
+  monitor(g, W, D, H, c) {
+    const mh = H * 0.34;
+    C(g, W * 0.28, W * 0.32, 0.03, 0, 0, 0, DARK); B(g, 0.05, H - mh, 0.05, 0, 0.03, 0, METAL);
+    B(g, W, mh, D * 0.12, 0, H - mh, 0, '#111'); B(g, W * 0.95, mh * 0.88, 0.004, 0, H - mh + mh * 0.06, D * 0.06 + 0.001, '#1c2733');
+  },
+  softbox(g, W, D, H, c) {
+    const bh = H * 0.28;
+    C(g, 0.015, 0.015, H - bh * 0.5, 0, 0, 0, DARK);
+    for (let i = 0; i < 3; i++) { const a = i * Math.PI * 2 / 3; const l = B(g, 0.02, 0.5, 0.02, Math.cos(a) * 0.14, 0, Math.sin(a) * 0.14, DARK); l.rotation.set(Math.sin(a) * 0.3, 0, -Math.cos(a) * 0.3); }
+    const b = new THREE.Mesh(new THREE.BoxGeometry(W, bh, D * 0.5), mat('#fff', { emissive: '#fffbe6', emissiveIntensity: 0.55 })); b.position.set(0, H - bh / 2, 0); g.add(b);
+    B(g, W * 1.02, bh * 1.02, D * 0.05, 0, H - bh, -D * 0.25, DARK);
+  },
+  wallpanel(g, W, D, H, c) { B(g, W, H, D, 0, 0, 0, c); for (const sx of [-1, 1]) B(g, 0.05, 0.04, D * 4, sx * W * 0.4, 0, 0, DARK); },
+  arch(g, W, D, H, c) {
+    const pw = Math.min(0.25, W * 0.1), r = W / 2 - pw / 2, ph = Math.max(0.1, H - r - pw / 2);
+    B(g, pw, ph, D, -r, 0, 0, c); B(g, pw, ph, D, r, 0, 0, c);
+    const t = new THREE.Mesh(new THREE.TorusGeometry(r, pw / 2, 12, 36, Math.PI), mat(c)); t.position.set(0, ph, 0); t.scale.z = D / pw; t.castShadow = true; g.add(t);
+  },
+  counter(g, W, D, H, c) { B(g, W * 0.97, H - 0.05, D * 0.92, 0, 0, -D * 0.02, c); B(g, W, 0.05, D, 0, H - 0.05, 0, '#eceff1'); },
+  table(g, W, D, H, c) { B(g, W, 0.04, D, 0, H - 0.04, 0, '#fafafa'); B(g, W * 0.96, H - 0.04, D * 0.94, 0, 0, 0, c); },
+  podium(g, W, D, H, c) { const m = C(g, W / 2, W / 2, H, 0, 0, 0, c, {}, 48); m.scale.z = D / W; },
+  bookshelf(g, W, D, H, c) { shelfUnit(g, W, D, H, c, 0, false); },
+  sofa(g, W, D, H, c) {
+    B(g, W, H * 0.45, D, 0, 0.08, 0, '#37474f'); B(g, W * 0.9, H * 0.18, D * 0.7, 0, H * 0.45 + 0.08, D * 0.12, c);
+    B(g, W, H * 0.75, D * 0.22, 0, 0.08, -D * 0.39, c);
+    for (const sx of [-1, 1]) B(g, W * 0.08, H * 0.55, D, sx * W * 0.46, 0.08, 0, c);
+    for (const sx of [-1, 1]) B(g, 0.05, 0.08, 0.05, sx * W * 0.45, 0, D * 0.4, DARK);
+  },
+  stool(g, W, D, H, c) { C(g, W * 0.4, W * 0.4, 0.06, 0, H - 0.06, 0, c); C(g, 0.018, 0.018, H - 0.08, 0, 0.04, 0, METAL); C(g, W * 0.38, W * 0.38, 0.03, 0, 0, 0, DARK); const r = new THREE.Mesh(new THREE.TorusGeometry(W * 0.3, 0.008, 6, 24), mat(METAL)); r.rotation.x = Math.PI / 2; r.position.y = H * 0.3; g.add(r); },
+  plant(g, W, D, H, c) {
+    C(g, W * 0.38, W * 0.3, H * 0.28, 0, 0, 0, '#8d6e63'); C(g, 0.02, 0.025, H * 0.35, 0, H * 0.28, 0, '#6d4c41');
+    Sph(g, W * 0.4, 0, H * 0.7, 0, c); Sph(g, W * 0.3, W * 0.22, H * 0.56, 0.05, '#2e7d32'); Sph(g, W * 0.28, -W * 0.2, H * 0.6, -0.05, '#66bb6a');
+  },
+};
+
+function buildModel(type, wcm, dcm, hcm, color) {
+  const g = new THREE.Group();
+  const def = DEFS[type]; const c = color || (def && def.color) || '#888';
+  const f = BUILD[type];
+  if (f) f(g, wcm / 100, dcm / 100, hcm / 100, c); else B(g, wcm / 100, hcm / 100, dcm / 100, 0, 0, 0, c);
+  return g;
+}
+
+function frontImageRect(type, wcm, dcm, hcm) { const f = frontImg[type]; return f ? f(wcm / 100, dcm / 100, hcm / 100) : null; }
+
+// ---- Personen mit Aktionen (Posen). Zubehör gehört fest zur Person. ----
+const POSE_LIST = [
+  ['stand', 'Stehen', 'Standing', '站立'], ['run', 'Rennen', 'Running', '奔跑'],
+  ['padel', 'Padel spielen (Schläger + Ball)', 'Playing padel (racket + ball)', '打板式网球'],
+  ['yoga', 'Yoga – Baum', 'Yoga – tree', '瑜伽·树式'], ['warrior', 'Yoga – Krieger', 'Yoga – warrior', '瑜伽·战士式'], ['lotus', 'Yoga – Sitzen', 'Yoga – seated', '瑜伽·坐姿'],
+  ['juggle', 'Äpfel jonglieren & abbeißen', 'Juggling & biting apple', '苹果杂耍'], ['cook', 'Wok-Kochen (Mütze + Wok)', 'Wok cooking', '炒菜'],
+  ['cheer', 'Cheerleading (Brokkoli-Pompons)', 'Cheering (broccoli pompoms)', '啦啦队'], ['auction', 'Auktion (Hammer)', 'Auction (gavel)', '拍卖'],
+  ['dj', 'DJ (Kopfhörer)', 'DJ (headphones)', 'DJ'], ['mosh', 'Moshpit-Sprung', 'Moshpit jump', '蹦迪'],
+  ['flex', 'Kraftsport / Bodybuilder-Pose', 'Strength / bodybuilder pose', '力量训练 / 健美姿势'], ['victory', 'Siegerpose (Pokal)', 'Victory pose (trophy)', '胜利姿势'],
+  ['selfie', 'Selfie / Video drehen', 'Selfie / filming', '自拍'], ['offer', 'Quark-Becher anbieten', 'Offering quark cups', '递酸奶'],
+  ['drink', 'Wasser trinken', 'Drinking water', '喝水'], ['shopper', 'Einkaufskorb tragen', 'Carrying shopping basket', '提购物篮'],
+  ['wave', 'Winken (Maskottchen)', 'Waving (mascot)', '挥手'], ['robot', 'Roboter', 'Robot', '机器人'],
+];
+// Gelenkwinkel: [Oberteil vor, Oberteil seitlich, Unterteil vor, Unterteil seitlich] (rad); Beine/Arme links (L) und rechts (R)
+const POSE_TAG = { run: ['Rennen', 'Running', '奔跑'], padel: ['Padel', 'Padel', '板式网球'], yoga: ['Yoga', 'Yoga', '瑜伽'], warrior: ['Yoga-Krieger', 'Yoga warrior', '瑜伽战士'], lotus: ['Yoga-Sitzen', 'Yoga seated', '瑜伽坐姿'], juggle: ['Jonglieren', 'Juggling', '杂耍'], cook: ['Kochen', 'Cooking', '烹饪'], cheer: ['Cheerleading', 'Cheering', '啦啦队'], auction: ['Auktion', 'Auction', '拍卖'], dj: ['DJ', 'DJ', 'DJ'], mosh: ['Moshpit', 'Moshpit', '蹦迪'], flex: ['Kraftsport', 'Strength', '力量训练'], victory: ['Siegerpose', 'Victory', '胜利'], selfie: ['Selfie', 'Selfie', '自拍'], offer: ['Quark', 'Quark', '酸奶'], shopper: ['Einkaufskorb', 'Shopping basket', '购物篮'], drink: ['Wasser trinken', 'Drinking water', '喝水'], wave: ['Winken', 'Waving', '挥手'], robot: ['Roboter', 'Robot', '机器人'] };
+const poseTag = (id, lang) => { const t = POSE_TAG[id]; return t ? t[lang === 'en' ? 1 : lang === 'zh' ? 2 : 0] : ''; };
+const allPoseTags = () => { const r = new Set(); for (const id of Object.keys(POSE_TAG)) POSE_TAG[id].forEach(x => r.add(x)); return r; };
+const POSES = {
+  stand: { lean: 0, legs: { L: [0, -.04, 0, 0], R: [0, .04, 0, 0] }, arms: { L: [0, -.07, 0, 0], R: [0, .07, 0, 0] } },
+  run: { lean: .25, legs: { L: [.95, -.05, -1.1, 0], R: [-.55, .05, -1.2, 0] }, arms: { L: [-.85, -.1, 1.0, 0], R: [1.0, .1, 1.4, 0] } },
+  padel: { lean: .12, legs: { L: [.45, -.22, -.9, 0], R: [.35, .22, -.8, 0] }, arms: { L: [.5, -.25, .9, 0], R: [1.1, .15, .5, 0] } },
+  yoga: { lean: 0, legs: { L: [0, -.02, 0, 0], R: [.2, 1.0, 0, -1.9] }, arms: { L: [3.0, .2, 0, 0], R: [3.0, -.2, 0, 0] } },
+  warrior: { lean: 0, legs: { L: [0, -.6, 0, 0], R: [.2, .8, 0, -.8] }, arms: { L: [0, -1.5, 0, 0], R: [0, 1.5, 0, 0] } },
+  lotus: { lean: 0, hipExtra: .02, legs: { L: [1.5, -.45, -3.0, 0], R: [1.5, .45, -3.0, 0] }, arms: { L: [.8, .15, 1.9, 0], R: [.8, -.15, 1.9, 0] } },
+  juggle: { lean: 0, legs: { L: [0, -.1, 0, 0], R: [0, .1, 0, 0] }, arms: { L: [2.4, -.4, .3, 0], R: [1.2, .1, 2.2, 0] } },
+  cook: { lean: .05, legs: { L: [.1, -.12, 0, 0], R: [0, .12, 0, 0] }, arms: { L: [.8, -.1, 1.1, 0], R: [1.15, .1, .35, 0] } },
+  cheer: { lean: -.05, lift: .06, legs: { L: [0, -.08, 0, 0], R: [.1, .9, 0, 0] }, arms: { L: [3.0, -.5, 0, 0], R: [3.0, .5, 0, 0] } },
+  auction: { lean: 0, legs: { L: [0, -.08, 0, 0], R: [0, .08, 0, 0] }, arms: { L: [.6, -.1, 1.2, 0], R: [2.5, .15, .6, 0] } },
+  dj: { lean: .12, legs: { L: [0, -.1, 0, 0], R: [0, .1, 0, 0] }, arms: { L: [1.2, -.1, .5, 0], R: [1.2, .1, .5, 0] } },
+  mosh: { lean: -.1, lift: .22, legs: { L: [.6, -.25, -1.1, 0], R: [.2, .25, -.6, 0] }, arms: { L: [2.7, -.5, .4, 0], R: [2.9, .6, .2, 0] } },
+  flex: { lean: 0, legs: { L: [0, -.15, 0, 0], R: [0, .15, 0, 0] }, arms: { L: [0, -1.45, 0, -1.69], R: [0, 1.45, 0, 1.69] } },
+  victory: { lean: -.03, legs: { L: [0, -.1, 0, 0], R: [0, .1, 0, 0] }, arms: { L: [3.0, -.5, 0, 0], R: [3.0, .45, 0, 0] } },
+  selfie: { lean: 0, legs: { L: [0, -.1, 0, 0], R: [0, .1, 0, 0] }, arms: { L: [.1, -.45, 1.4, 0], R: [1.35, .2, 1.9, 0] } },
+  offer: { lean: 0, legs: { L: [0, -.1, 0, 0], R: [0, .1, 0, 0] }, arms: { L: [1.35, -.15, .2, 0], R: [1.35, .15, .2, 0] } },
+  drink: { lean: -.05, legs: { L: [0, -.06, 0, 0], R: [0, .06, 0, 0] }, arms: { L: [0, -.07, 0, 0], R: [1.25, .05, 2.15, 0] } },
+  shopper: { lean: 0, legs: { L: [0, -.06, 0, 0], R: [.05, .06, 0, 0] }, arms: { L: [0, -.07, 0, 0], R: [.3, .22, .5, 0] } },
+  wave: { lean: 0, headScale: 1.45, legs: { L: [0, -.1, 0, 0], R: [0, .1, 0, 0] }, arms: { L: [0, -.07, 0, 0], R: [2.8, .45, .5, 0] } },
+  robot: { lean: 0, legs: { L: [0, -.06, 0, 0], R: [0, .06, 0, 0] }, arms: { L: [0, -.1, 0, 0], R: [2.6, .4, .6, 0] } },
+};
+function limb(parent, x, y, z, L, r, f, zz, col) {
+  const gr = new THREE.Group(); gr.position.set(x, y, z); gr.rotation.set(-f, 0, zz);
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r * 0.85, L, 10), mat(col)); m.position.y = -L / 2; m.castShadow = true; gr.add(m);
+  const end = new THREE.Group(); end.position.y = -L; gr.add(end); parent.add(gr); return end;
+}
+function appleMesh(g, x, y, z, bite) {
+  Sph(g, 0.05, x, y, z, '#d32f2f'); C(g, 0.004, 0.004, 0.03, x, y + 0.045, z, '#5d4037', {}, 6); Sph(g, 0.016, x + 0.02, y + 0.07, z, '#43a047');
+  if (bite) Sph(g, 0.028, x + 0.035, y + 0.015, z + 0.03, '#fff3c4');
+}
+function cupMesh(g, x, y, z, lid) { C(g, 0.05, 0.04, 0.09, x, y, z, '#fafafa'); C(g, 0.052, 0.052, 0.012, x, y + 0.09, z, lid); C(g, 0.051, 0.051, 0.03, x, y + 0.03, z, lid); }
+const mkV3 = () => new THREE.Vector3();
+function buildPerson(hcm, color, pose, opts) {
+  const g = new THREE.Group(); const H = hcm / 100, k = H / 1.75;
+  const P = POSES[pose] || POSES.stand, robot = pose === 'robot';
+  const skin = robot ? '#cfd8dc' : '#f1c9a5', pants = robot ? '#607d8b' : '#37474f', shirt = robot ? '#90a4ae' : color;
+  const legU = H * 0.235, torsoH = H * 0.32, armU = 0.27 * k, armF = 0.26 * k;
+  const lg = new THREE.Group(); g.add(lg); const feet = [];
+  for (const [side, sx] of [['L', -1], ['R', 1]]) {
+    const a = P.legs[side]; const e1 = limb(lg, sx * 0.09 * k, 0, 0, legU, 0.057 * k, a[0], a[1], pants); const e2 = limb(e1, 0, 0, 0, legU, 0.047 * k, a[2], a[3], pants);
+    const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.09 * k, 0.05 * k, 0.2 * k), mat(robot ? '#455a64' : '#263238')); shoe.position.set(0, 0.0, 0.05 * k); e2.add(shoe); feet.push(e2);
+  }
+  g.updateMatrixWorld(true); let low = 0; const v = mkV3(); for (const e of feet) { e.getWorldPosition(v); low = Math.min(low, v.y - 0.02 * k); }
+  const hip = -low + (P.hipExtra || 0) + (P.lift || 0); lg.position.y = hip;
+  const tg = new THREE.Group(); tg.position.y = hip; tg.rotation.x = P.lean || 0; g.add(tg);
+  let tor;
+  if (robot) { tor = new THREE.Mesh(new THREE.BoxGeometry(0.34 * k, torsoH, 0.2 * k), mat(shirt, { metalness: 0.4, roughness: 0.4 })); tor.position.y = torsoH / 2; tg.add(tor); }
+  else { tor = C(tg, 0.17 * k, 0.13 * k, torsoH, 0, 0, 0, shirt, {}, 16); tor.scale.z = 0.65; }
+  if (opts && opts.mark && !robot) {
+    const cv = document.createElement('canvas'); cv.width = cv.height = 128; const cx = cv.getContext('2d');
+    cx.fillStyle = '#ffffff'; cx.font = 'bold 118px Arial, sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.lineWidth = 6; cx.strokeStyle = '#000'; cx.strokeText('?', 64, 70); cx.fillText('?', 64, 70);
+    const tx = new THREE.CanvasTexture(cv); const pm = new THREE.MeshStandardMaterial({ map: tx, transparent: true, roughness: 0.6, depthWrite: false });
+    const sz = torsoH * 0.62, zo = 0.17 * k * 0.65 * 0.97 + 0.004;
+    const pf = new THREE.Mesh(new THREE.PlaneGeometry(sz, sz), pm); pf.position.set(0, torsoH * 0.52, zo); tg.add(pf);
+    const pbk = new THREE.Mesh(new THREE.PlaneGeometry(sz, sz), pm); pbk.position.set(0, torsoH * 0.52, -zo); pbk.rotation.y = Math.PI; tg.add(pbk);
+  }
+  const hs = P.headScale || 1, R = H * 0.066 * hs, headY = torsoH + R + H * 0.009;
+  let head;
+  if (robot) { head = new THREE.Mesh(new THREE.BoxGeometry(R * 2.1, R * 1.8, R * 1.8), mat('#b0bec5', { metalness: 0.4, roughness: 0.4 })); head.position.set(0, headY, 0); tg.add(head);
+    for (const sx of [-1, 1]) Sph(tg, R * 0.22, sx * R * 0.5, headY + R * 0.1, R * 0.9, '#00e5ff', { emissive: '#00e5ff', emissiveIntensity: 0.9 });
+    C(tg, 0.01, 0.01, R * 0.9, 0, headY + R * 0.9, 0, '#78909c'); Sph(tg, 0.025, 0, headY + R * 1.9, 0, '#ff5252', { emissive: '#ff5252', emissiveIntensity: 0.8 }); }
+  else { head = Sph(tg, R, 0, headY, 0, skin); Sph(tg, R * 0.2, 0, headY - R * 0.1, R * 0.95, skin); }
+  const hands = {};
+  for (const [side, sx] of [['L', -1], ['R', 1]]) {
+    const a = P.arms[side]; const bb = (opts && opts.bicep) || 1; const e1 = limb(tg, sx * 0.21 * k, torsoH * 0.93, 0, armU, 0.04 * k * bb, a[0], a[1], shirt); const e2 = limb(e1, 0, 0, 0, armF, 0.035 * k * (1 + (bb - 1) * 0.6), a[2], a[3], skin); hands[side] = e2;
+    if (bb > 1.05) { const bu = new THREE.Mesh(new THREE.SphereGeometry(0.05 * k * bb, 14, 10), mat(shirt)); bu.scale.set(1, 1.5, 1); bu.position.set(0, -armU * 0.42, 0.025 * k * bb); e1.parent.add(bu); }
+  }
+  g.updateMatrixWorld(true);
+  const hp = {}; for (const s of ['L', 'R']) { hp[s] = mkV3(); hands[s].getWorldPosition(hp[s]); Sph(g, 0.042 * k, hp[s].x, hp[s].y, hp[s].z, skin); }
+  const hd = mkV3(); head.getWorldPosition(hd); const hL = hp.L, hR = hp.R;
+  const basketAt = hh => { const x = hh.x, y = hh.y; B(g, 0.32, 0.2, 0.22, x, y - 0.27, hh.z, '#d32f2f'); B(g, 0.325, 0.035, 0.225, x, y - 0.14, hh.z, '#ffffff');
+    const hd2 = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.01, 6, 16, Math.PI), mat('#9aa3ad')); hd2.position.set(x, y - 0.07, hh.z); g.add(hd2);
+    appleMesh(g, x - 0.08, y - 0.05, hh.z + 0.03, false); Sph(g, 0.055, x + 0.06, y - 0.06, hh.z - 0.02, '#66bb6a'); C(g, 0.025, 0.025, 0.28, x + 0.1, y - 0.1, hh.z + 0.05, '#d7a86e'); };
+  const G = (type) => ({ padel() {
+      const rk = new THREE.Group(); rk.position.copy(hR); rk.rotation.x = 0.9; g.add(rk);
+      const h = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.2, 8), mat('#212121')); h.position.y = 0.1; rk.add(h);
+      const d = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.025, 20), mat('#ff7043')); d.rotation.z = Math.PI / 2; d.position.y = 0.33; d.scale.set(1, 1, 1.25); rk.add(d);
+      const t = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.012, 6, 24), mat('#212121')); t.rotation.y = Math.PI / 2; t.position.y = 0.33; t.scale.set(1, 1.25, 1); rk.add(t);
+      Sph(g, 0.035, hR.x + 0.06, hR.y + 0.32, hR.z + 0.55, '#ccff00', { emissive: '#aacc00', emissiveIntensity: 0.3 });
+    },
+    juggle() {
+      appleMesh(g, hR.x - 0.02, hR.y + 0.05, hR.z + 0.02, true); appleMesh(g, hL.x, hL.y + 0.06, hL.z, false);
+      appleMesh(g, -0.32, H * 1.12 + 0.2, 0.05, false); appleMesh(g, 0.05, H * 1.12 + 0.45, 0.1, false); appleMesh(g, 0.4, H * 1.12 + 0.15, -0.02, false);
+    },
+    cook() {
+      C(g, 0.085 * k, 0.09 * k, 0.1, hd.x, hd.y + R * 0.75, hd.z, '#ffffff'); Sph(g, 0.11 * k, hd.x, hd.y + R * 0.75 + 0.13, hd.z, '#ffffff');
+      B(tg, 0.28 * k, torsoH * 0.7, 0.01, 0, torsoH * 0.15, 0.115 * k, '#fafafa');
+      const w = new THREE.Group(); w.position.set(hR.x, hR.y, hR.z + 0.2); g.add(w);
+      const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.12, 0.08, 18), mat('#263238', { metalness: 0.5, roughness: 0.4 })); bowl.position.y = 0.02; w.add(bowl);
+      const hnd = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.22, 8), mat('#5d4037')); hnd.rotation.x = Math.PI / 2; hnd.position.set(0, 0.02, -0.2); w.add(hnd);
+      ['#e53935', '#43a047', '#fb8c00', '#fdd835', '#66bb6a'].forEach((c, i) => Sph(w, 0.035, (i - 2) * 0.06, 0.1 + (i % 2) * 0.1 + i * 0.015, (i % 3 - 1) * 0.05, c));
+      for (let i = -1; i <= 1; i++) { const f = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.14, 8), mat('#ff7043', { emissive: '#ff5722', emissiveIntensity: 0.8 })); f.position.set(i * 0.08, -0.08, 0); w.add(f); }
+      C(g, 0.012, 0.012, 0.3, hL.x, hL.y - 0.05, hL.z + 0.05, '#9aa3ad'); Sph(g, 0.05, hL.x, hL.y + 0.27, hL.z + 0.05, '#9aa3ad');
+    },
+    cheer() { for (const hh of [hL, hR]) { C(g, 0.012, 0.012, 0.08, hh.x, hh.y, hh.z, '#2e7d32'); [['#2e7d32', 0, 0.12, 0, .09], ['#43a047', .07, .09, 0, .075], ['#66bb6a', -.07, .09, .02, .075], ['#81c784', 0, .17, .02, .07], ['#388e3c', 0, .1, .07, .07]].forEach(([c, x, y, z, r]) => Sph(g, r, hh.x + x, hh.y + y, hh.z + z, c)); } },
+    auction() { const rk = new THREE.Group(); rk.position.copy(hR); g.add(rk); C(rk, 0.012, 0.012, 0.28, 0, 0, 0, '#8d6e63'); const hd2 = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.15, 10), mat('#5d4037')); hd2.rotation.z = Math.PI / 2; hd2.position.y = 0.3; rk.add(hd2); },
+    dj() { const band = new THREE.Mesh(new THREE.TorusGeometry(R * 1.12, 0.012, 8, 20, Math.PI), mat('#212121')); band.position.copy(hd); g.add(band); for (const sx of [-1, 1]) { const c = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.04, 14), mat('#212121')); c.rotation.z = Math.PI / 2; c.position.set(hd.x + sx * R * 1.12, hd.y, hd.z); g.add(c); } },
+    victory() { const x = hR.x, y = hR.y; B(g, 0.07, 0.025, 0.07, x, y, hR.z, '#8d6e63'); C(g, 0.012, 0.012, 0.07, x, y + 0.025, hR.z, '#ffd54f'); C(g, 0.075, 0.03, 0.1, x, y + 0.09, hR.z, '#ffd54f', { emissive: '#ffb300', emissiveIntensity: 0.25, metalness: 0.6 }); for (const sx of [-1, 1]) { const hh = new THREE.Mesh(new THREE.TorusGeometry(0.035, 0.008, 6, 12), mat('#ffd54f')); hh.position.set(x + sx * 0.08, y + 0.15, hR.z); g.add(hh); } },
+    selfie() { B(g, 0.075, 0.14, 0.012, hR.x, hR.y - 0.02, hR.z + 0.04, '#111'); B(g, 0.065, 0.12, 0.004, hR.x, hR.y - 0.01, hR.z + 0.033, '#4fc3f7', { emissive: '#29b6f6', emissiveIntensity: 0.6 }); },
+    drink() { const b = new THREE.Group(); b.position.copy(hR); b.rotation.x = -0.9; g.add(b); const bt = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.22, 12), mat('#81d4fa', { transparent: true, opacity: 0.75 })); bt.position.y = 0.1; b.add(bt); const w = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.12, 12), mat('#29b6f6', { transparent: true, opacity: 0.9 })); w.position.y = 0.06; b.add(w); const cp = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.022, 0.03, 10), mat('#1565c0')); cp.position.y = 0.225; b.add(cp); },
+    shopper() { basketAt(hR); },
+    offer() { cupMesh(g, hR.x, hR.y - 0.01, hR.z + 0.02, '#e53935'); cupMesh(g, hL.x, hL.y - 0.01, hL.z + 0.02, '#1e88e5'); },
+  })[type];
+  const f = G(pose); if (f) f();
+  if (opts && opts.basket && pose !== 'shopper') basketAt(hL.y < hR.y ? hL : hR);
+  return g;
+}
+
+// Beschriftungs-Textur (Name o. Ä.)
+function labelTexture(text, { fg = '#fff', bg = 'rgba(30,34,40,0.82)', size = 44, pad = 18 } = {}) {
+  const cv = document.createElement('canvas'), ctx = cv.getContext('2d');
+  ctx.font = `600 ${size}px system-ui, sans-serif`;
+  const w = Math.ceil(ctx.measureText(text).width) + pad * 2, h = size + pad;
+  cv.width = w; cv.height = h; ctx.font = `600 ${size}px system-ui, sans-serif`;
+  ctx.fillStyle = bg; const r = h / 2; ctx.beginPath(); ctx.roundRect(0, 0, w, h, r); ctx.fill();
+  ctx.fillStyle = fg; ctx.textBaseline = 'middle'; ctx.fillText(text, pad, h / 2 + 2);
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+  return { tex, aspect: w / h };
+}
+
+const OrbitControls = THREE.OrbitControls, GLTFExporter = THREE.GLTFExporter, OBJExporter = THREE.OBJExporter;
+// 3D-Engine: Szene, Kameras, Objekte, Auswahl, Ziehen, Overlay (Notizen/Namensschilder), Export
+
+
+
+
+
+
+const ROOM = { w: 700, d: 500, h: 300 }; // jeder Raum: genau 7 × 5 m
+
+function hashStr(s) { if (!s) return 0; let h = s.length; for (let i = 0; i < s.length; i += Math.max(1, (s.length / 64) | 0)) h = (h * 31 + s.charCodeAt(i)) | 0; return h; }
+function groupColor(g) { const f = PERSON_GROUPS.find(x => x.id === g); return f ? f.color : '#757575'; }
+function snapV(v, snap) { return snap ? Math.round(v / 10) * 10 : Math.round(v); }
+function clampPos(o, x, z) {
+  const r = (o.rot || 0) * Math.PI / 180, c = Math.abs(Math.cos(r)), s = Math.abs(Math.sin(r));
+  const hx = c * o.w / 2 + s * o.d / 2, hz = s * o.w / 2 + c * o.d / 2;
+  const mx = Math.max(0, ROOM.w / 2 - hx), mz = Math.max(0, ROOM.d / 2 - hz);
+  return { x: Math.min(mx, Math.max(-mx, x)), z: Math.min(mz, Math.max(-mz, z)) };
+}
+
+const texCache = new Map(), imgCache = new Map();
+function texFor(url) {
+  const k = hashStr(url);
+  if (!texCache.has(k)) { const t = new THREE.TextureLoader().load(url); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; texCache.set(k, t); }
+  return texCache.get(k);
+}
+function initials(name) { return (name || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase() || '?'; }
+function avatarTexture(o) {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 192; const x = cv.getContext('2d');
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
+  const col = groupColor(o.group);
+  const draw = img => {
+    x.clearRect(0, 0, 192, 192); x.save(); x.beginPath(); x.arc(96, 96, 88, 0, Math.PI * 2); x.clip();
+    x.fillStyle = col; x.fillRect(0, 0, 192, 192);
+    if (img) { const s = Math.max(192 / img.width, 192 / img.height); x.drawImage(img, 96 - img.width * s / 2, 96 - img.height * s / 2, img.width * s, img.height * s); }
+    else { x.fillStyle = '#fff'; x.font = '700 76px system-ui,sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(initials(o.name), 96, 100); }
+    x.restore(); x.lineWidth = 9; x.strokeStyle = '#fff'; x.beginPath(); x.arc(96, 96, 88, 0, Math.PI * 2); x.stroke();
+    x.lineWidth = 4; x.strokeStyle = col; x.beginPath(); x.arc(96, 96, 93, 0, Math.PI * 2); x.stroke(); tex.needsUpdate = true;
+  };
+  draw(null);
+  if (o.photo) {
+    const k = hashStr(o.photo);
+    let im = imgCache.get(k);
+    if (!im) { im = new Image(); im.src = o.photo; imgCache.set(k, im); }
+    if (im.complete && im.naturalWidth) draw(im); else im.addEventListener('load', () => draw(im), { once: true });
+  }
+  return tex;
+}
+function spriteFromLabel(text, h, opts) {
+  const { tex, aspect } = labelTexture(text, opts);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
+  sp.scale.set(h * aspect, h, 1); sp.renderOrder = 20; return sp;
+}
+
+function makeBody(o) {
+  if (o.type === 'person') { const pb = buildPerson(o.h, groupColor(o.group), o.pose, { basket: !!o.basket, bicep: o.bicep || 1, mark: /creator/i.test(o.name || '') }); pb.scale.set((o.w || 50) / 50, 1, (o.d || 30) / 30); return pb; }
+  const g = buildModel(o.type, o.w, o.d, o.h, o.color);
+  if (o.img) {
+    const r = frontImageRect(o.type, o.w, o.d, o.h);
+    if (r) { const m = new THREE.Mesh(new THREE.PlaneGeometry(r.w, r.h), new THREE.MeshBasicMaterial({ map: texFor(o.img), side: THREE.FrontSide })); m.position.set(0, r.cy, r.z); g.add(m); }
+  }
+  return g;
+}
+function place(root, o) { root.position.set(o.x / 100, (o.y || 0) / 100, o.z / 100); root.rotation.y = -(o.rot || 0) * Math.PI / 180; }
+const sigOf = o => [o.type, o.w, o.d, o.h, o.color, o.name, o.group, o.pose, o.basket, o.bicep, hashStr(o.img), hashStr(o.photo)].join('|');
+
+function selVis(o, color, op) {
+  const g = new THREE.Group(); g.name = 'selvis';
+  const W = o.w / 100, H = Math.max(o.h, 1) / 100, D = o.d / 100;
+  const box = new THREE.BoxGeometry(W, H, D);
+  const l = new THREE.LineSegments(new THREE.EdgesGeometry(box), new THREE.LineBasicMaterial({ color, depthTest: false })); l.position.y = H / 2; l.renderOrder = 15;
+  const f = new THREE.Mesh(box, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: op, depthWrite: false })); f.position.y = H / 2;
+  l.raycast = () => {}; f.raycast = () => {}; g.add(l, f); return g;
+}
+
+function createEngine(canvas, overlay, S, cb) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2)); renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  const scene = new THREE.Scene(); scene.background = new THREE.Color('#dfe3e8');
+  scene.add(new THREE.HemisphereLight('#ffffff', '#b8bec8', 0.6));
+  const sun = new THREE.DirectionalLight('#ffffff', 0.55); sun.position.set(4, 8, 5); sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -6, right: 6, top: 5, bottom: -5, near: 1, far: 25 }); scene.add(sun);
+
+  // Raum: Boden 7 × 5 m, 1-m- und 10-cm-Raster, nur Umriss
+  const RW = ROOM.w / 100, RD = ROOM.d / 100;
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(RW, RD), new THREE.MeshStandardMaterial({ color: '#f6f6f3', roughness: 1 }));
+  floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; floor.raycast = () => {}; scene.add(floor);
+  function gridLines(step, color, y) {
+    const p = [];
+    for (let x = -RW / 2; x <= RW / 2 + 1e-6; x += step) p.push(x, y, -RD / 2, x, y, RD / 2);
+    for (let z = -RD / 2; z <= RD / 2 + 1e-6; z += step) p.push(-RW / 2, y, z, RW / 2, y, z);
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(p, 3));
+    const l = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color })); l.raycast = () => {}; scene.add(l);
+  }
+  gridLines(0.1, '#ecedef', 0.0015); gridLines(1, '#c9cdd3', 0.003);
+  const em = new THREE.MeshBasicMaterial({ color: '#566070' });
+  for (const [w, d, x, z] of [[RW + 0.05, 0.05, 0, -RD / 2], [RW + 0.05, 0.05, 0, RD / 2], [0.05, RD, -RW / 2, 0], [0.05, RD, RW / 2, 0]]) { const m = new THREE.Mesh(new THREE.BoxGeometry(w, 0.012, d), em); m.position.set(x, 0.004, z); m.raycast = () => {}; scene.add(m); }
+
+  const persp = new THREE.PerspectiveCamera(45, 1, 0.1, 100); persp.position.set(5.4, 4.6, 6.6);
+  const ortho = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 100);
+  let cam = persp, view = '3d';
+  // eigener Pointer-Handler VOR den Controls registrieren (damit Objektziehen den Orbit unterdrücken kann)
+  canvas.addEventListener('pointerdown', onDown);
+  const ctrlP = new OrbitControls(persp, canvas); ctrlP.target.set(0, 0.7, 0); ctrlP.maxPolarAngle = Math.PI / 2 - 0.02; ctrlP.minDistance = 1.5; ctrlP.maxDistance = 22; ctrlP.update();
+  const ctrlO = new OrbitControls(ortho, canvas); ctrlO.enableRotate = false; ctrlO.screenSpacePanning = true; ctrlO.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN }; ctrlO.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN }; ctrlO.enabled = false;
+
+  const entries = new Map(); // id -> { root, sig }
+  const items = []; // Overlay-Elemente
+
+  function fitOrtho() {
+    const W = canvas.clientWidth || 1, H = canvas.clientHeight || 1, asp = W / H;
+    const ext = view === 'plan' ? [RW + 0.8, RD + 0.8] : view === 'front' ? [RW + 0.8, 3.5] : [RD + 0.8, 3.5];
+    const half = Math.max(ext[1] / 2, ext[0] / 2 / asp);
+    ortho.left = -half * asp; ortho.right = half * asp; ortho.top = half; ortho.bottom = -half; ortho.updateProjectionMatrix();
+  }
+  function setView(v) {
+    view = v;
+    if (v === '3d') { cam = persp; ctrlP.enabled = true; ctrlO.enabled = false; }
+    else {
+      cam = ortho; ctrlP.enabled = false; ctrlO.enabled = true; ortho.zoom = 1;
+      if (v === 'plan') { ortho.position.set(0, 20, 0); ortho.up.set(0, 0, -1); ctrlO.target.set(0, 0, 0); }
+      if (v === 'front') { ortho.position.set(0, 1.5, 20); ortho.up.set(0, 1, 0); ctrlO.target.set(0, 1.5, 0); }
+      if (v === 'side') { ortho.position.set(-20, 1.5, 0); ortho.up.set(0, 1, 0); ctrlO.target.set(0, 1.5, 0); }
+      ortho.lookAt(ctrlO.target); fitOrtho(); ctrlO.update();
+    }
+    rebuildOverlay();
+  }
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return;
+    renderer.setSize(w, h, false); persp.aspect = w / h; persp.updateProjectionMatrix(); if (view !== '3d') fitOrtho();
+  }
+
+  // ----- Objekte -----
+  function roomIds() { return Object.keys(S.objects).filter(id => S.objects[id].room === S.room); }
+  function build(o) {
+    const root = new THREE.Group(); root.userData.id = o.id;
+    root.add(makeBody(o));
+    if (o.type === 'person') {
+      const H = o.h / 100;
+      const av = new THREE.Sprite(new THREE.SpriteMaterial({ map: avatarTexture(o), transparent: true })); av.scale.set(0.38, 0.38, 1); av.position.y = H + 0.34; av.renderOrder = 12; root.add(av);
+      const nm = spriteFromLabel(o.name || 'Person', 0.095, { size: 40, pad: 16 }); nm.position.y = H + 0.07; root.add(nm);
+    } else if (o.type === 'placeholder') {
+      const nm = spriteFromLabel(o.name || 'Platzhalter', 0.13); nm.position.y = o.h / 200; root.add(nm);
+    }
+    root.traverse(m => { m.userData.id = o.id; if (m.isMesh || m.isSprite) { m.castShadow = m.castShadow || false; } });
+    place(root, o); return root;
+  }
+  function refresh() {
+    const ids = new Set(roomIds());
+    for (const [id, e] of entries) if (!ids.has(id)) { scene.remove(e.root); entries.delete(id); }
+    for (const id of ids) {
+      const o = S.objects[id], sig = sigOf(o); let e = entries.get(id);
+      if (e && e.sig !== sig) { scene.remove(e.root); e = null; }
+      if (!e) { e = { root: build(o), sig }; entries.set(id, e); scene.add(e.root); } else place(e.root, o);
+    }
+    refreshSelection(); rebuildOverlay();
+  }
+  function refreshSelection() {
+    for (const e of entries.values()) for (const c of [...e.root.children]) if (c.name === 'selvis') e.root.remove(c);
+    const others = new Map();
+    for (const c of S.clients || []) if (c.id !== S.you && c.room === S.room) for (const id of c.sel || []) if (!others.has(id)) others.set(id, c.color);
+    for (const [id, e] of entries) {
+      const o = S.objects[id]; if (!o) continue;
+      if (S.sel.has(id)) e.root.add(selVis(o, '#ff8a00', 0.14));
+      else if (others.has(id)) e.root.add(selVis(o, others.get(id), 0.1));
+    }
+  }
+  function updateTransforms() { for (const [id, e] of entries) { const o = S.objects[id]; if (o) place(e.root, o); } }
+
+  // ----- Overlay -----
+  function rebuildOverlay() {
+    overlay.innerHTML = ''; items.length = 0;
+    const add = (id, cls, html, up, bg, click) => {
+      const o = S.objects[id]; if (!o) return; const el = document.createElement('div'); el.className = cls; if (bg) el.style.background = bg; el.innerHTML = html; if (click) el.addEventListener('click', ev => { ev.stopPropagation(); click(); });
+      overlay.appendChild(el); items.push({ el, id, up });
+    };
+    const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    for (const id of roomIds()) {
+      const o = S.objects[id]; if (!o.note) continue;
+      const top = o.type === 'person' ? 0.6 : 0.12;
+      if (S.showNotes || S.openNotes.has(id)) add(id, 'note', `<b>${esc(o.name || DEFS[o.type]?.names.de || '')}</b>${esc(o.note)}`, top + 0.1, null, () => cb.togglePin(id));
+      else add(id, 'pin', 'i', top, null, () => cb.togglePin(id));
+    }
+    for (const id of S.sel) { const o = S.objects[id]; if (o && o.room === S.room) add(id, 'tag', `${esc(o.name || '')} · ${o.w}×${o.d}×${o.h}`, S.sel.size > 1 ? 0.05 : -0.02, '#ff8a00'); }
+    const seen = new Set();
+    for (const c of S.clients || []) if (c.id !== S.you && c.room === S.room) for (const id of c.sel || []) if (!seen.has(id) && S.objects[id]) { seen.add(id); add(id, 'tag', esc(c.name), 0.22, c.color); }
+  }
+  const v3 = new THREE.Vector3();
+  function updateOverlay() {
+    const W = canvas.clientWidth, H = canvas.clientHeight;
+    for (const it of items) {
+      const o = S.objects[it.id], e = entries.get(it.id); if (!o || !e) { it.el.style.display = 'none'; continue; }
+      v3.set(e.root.position.x, e.root.position.y + o.h / 100 + (o.type === 'person' ? 0.0 : 0) + it.up + (it.el.className === 'tag' ? 0.0 : 0), e.root.position.z).project(cam);
+      if (v3.z > 1) { it.el.style.display = 'none'; continue; }
+      it.el.style.display = ''; it.el.style.left = ((v3.x * 0.5 + 0.5) * W) + 'px'; it.el.style.top = ((-v3.y * 0.5 + 0.5) * H) + 'px';
+    }
+  }
+
+  // ----- Picking & Ziehen -----
+  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), pt = new THREE.Vector3();
+  function setRay(e) { const r = canvas.getBoundingClientRect(); ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); ray.setFromCamera(ndc, cam); }
+  function pick(e) {
+    setRay(e); const hits = ray.intersectObjects([...entries.values()].map(x => x.root), true);
+    for (const h of hits) { if (h.object.userData.id) return h.object.userData.id; } return null;
+  }
+  function floorPoint(e) { setRay(e); return ray.ray.intersectPlane(plane, pt) ? pt.clone() : null; }
+  let down = null, drag = null;
+  function onDown(e) {
+    if (e.target !== canvas || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    canvas.focus({ preventScroll: true });
+    const id = pick(e); down = { x: e.clientX, y: e.clientY, id, moved: false };
+    if (!id) return;
+    cb.pick(id, e.shiftKey || e.ctrlKey || e.metaKey);
+    if (S.editable && (view === '3d' || view === 'plan') && S.sel.has(id)) {
+      const p = floorPoint(e); if (!p) return;
+      const offs = [...S.sel].filter(i => S.objects[i] && S.objects[i].room === S.room).map(i => ({ id: i, dx: S.objects[i].x / 100 - p.x, dz: S.objects[i].z / 100 - p.z }));
+      drag = { offs, started: false, pid: e.pointerId };
+      e.stopImmediatePropagation(); ctrlP.enabled = false; ctrlO.enabled = false;
+      window.addEventListener('pointermove', onMove); window.addEventListener('pointerup', onUp, { once: true });
+    }
+  }
+  function onMove(e) {
+    if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 4) down.moved = true;
+    if (!drag || !down.moved) return;
+    const p = floorPoint(e); if (!p) return;
+    if (!drag.started) { drag.started = true; cb.dragStart(drag.offs.map(o => o.id)); }
+    const ups = drag.offs.map(f => {
+      const o = S.objects[f.id]; const c = clampPos(o, snapV((p.x + f.dx) * 100, S.snap), snapV((p.z + f.dz) * 100, S.snap)); return { id: f.id, x: c.x, z: c.z };
+    });
+    cb.move(ups);
+  }
+  function onUp(e) {
+    window.removeEventListener('pointermove', onMove);
+    if (drag && drag.started) cb.dragEnd();
+    drag = null;
+    ctrlP.enabled = view === '3d'; ctrlO.enabled = view !== '3d';
+  }
+  canvas.addEventListener('pointermove', e => { if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 4) down.moved = true; });
+  canvas.addEventListener('pointerup', () => { if (down && !down.id && !down.moved) cb.clear(); setTimeout(() => { down = null; }, 0); });
+
+  // ----- Export -----
+  function exportGroup() {
+    const g = new THREE.Group(); g.name = 'departd-' + S.room;
+    for (const id of roomIds()) { const o = S.objects[id]; const b = makeBody(o); b.name = o.name || o.type; place(b, o); g.add(b); }
+    return g;
+  }
+  const exporters = {
+    glb: () => new Promise((res, rej) => new GLTFExporter().parse(exportGroup(), r => res(new Blob([r], { type: 'model/gltf-binary' })), rej, { binary: true })),
+    obj: () => Promise.resolve(new Blob([new OBJExporter().parse(exportGroup())], { type: 'text/plain' })),
+  };
+
+  function loop() { requestAnimationFrame(loop); (view === '3d' ? ctrlP : ctrlO).update(); renderer.render(scene, cam); updateOverlay(); }
+  new ResizeObserver(resize).observe(canvas.parentElement); resize(); loop();
+
+  function arrowDirs() {
+    const d = new THREE.Vector3(); cam.getWorldDirection(d); let fx = d.x, fz = d.z;
+    if (Math.hypot(fx, fz) < 0.3) { fx = cam.up.x; fz = cam.up.z; if (Math.hypot(fx, fz) < 0.01) { fx = 0; fz = -1; } }
+    const f = Math.abs(fx) >= Math.abs(fz) ? [Math.sign(fx), 0] : [0, Math.sign(fz)];
+    return { fwd: { x: f[0], z: f[1] }, right: { x: -f[1], z: f[0] } };
+  }
+  return { arrowDirs, refresh, refreshSelection, updateTransforms, rebuildOverlay, setView, resize, exporters, getView: () => view };
+}
+
+const SEED_STATE = {"rooms":[{"id":"main","name":"Hauptraum"},{"id":"k_einstieg","name":"Einstieg – Aktivierungsfläche"},{"id":"k_01","name":"1 – Die Stoßheberin"},{"id":"k_02","name":"2 – Der Running Club"},{"id":"k_03","name":"3 – Chinese Live Koch Show"},{"id":"k_04","name":"4 – Apple Biting Juggler"},{"id":"k_05","name":"5 – Kaufland Morpheus"},{"id":"k_06","name":"6 – Yoga Club"},{"id":"k_07","name":"7 – Best Prices Auktion"},{"id":"k_08","name":"8 – Frischer Moshpit"},{"id":"k_09","name":"9 – AI Roboter"},{"id":"k_10","name":"10 – Cheerleaderinnen"},{"id":"k_11","name":"11 – Padelspieler"},{"id":"k_schluss","name":"Der Schluss"},{"id":"k_12","name":"12 – Nanocreator (Add-on)"}],"objects":{"m_urs":{"id":"m_urs","room":"main","type":"person","name":"Urs Kalecinski","note":"","x":-300,"z":-210,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"hauptrollen","photo":""},"m_kunde":{"id":"m_kunde","room":"main","type":"person","name":"Kunde (Kaufland-Kunde)","note":"","x":-300,"z":-165,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"sonstige","photo":""},"m_gerrit":{"id":"m_gerrit","room":"main","type":"person","name":"Gerrit","note":"","x":-300,"z":-120,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"kaufland","photo":""},"m_sina":{"id":"m_sina","room":"main","type":"person","name":"Sina Ruppenthal (Gewichtheberin)","note":"","x":-300,"z":-75,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"solo","photo":""},"m_bb1":{"id":"m_bb1","room":"main","type":"person","name":"Bodybuilder 1","note":"","x":-300,"z":-30,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"bodybuilder","photo":""},"m_bb2":{"id":"m_bb2","room":"main","type":"person","name":"Bodybuilder 2","note":"","x":-240,"z":-30,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"bodybuilder","photo":""},"m_bb3":{"id":"m_bb3","room":"main","type":"person","name":"Bodybuilder 3","note":"","x":-180,"z":-30,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"bodybuilder","photo":""},"m_bb4":{"id":"m_bb4","room":"main","type":"person","name":"Bodybuilder 4","note":"","x":-120,"z":-30,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"bodybuilder","photo":""},"m_pace":{"id":"m_pace","room":"main","type":"person","name":"Pacemaker","note":"","x":-300,"z":15,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"running","photo":""},"m_run1":{"id":"m_run1","room":"main","type":"person","name":"Runner 1","note":"","x":-240,"z":15,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"running","photo":""},"m_run2":{"id":"m_run2","room":"main","type":"person","name":"Runner 2","note":"","x":-180,"z":15,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"running","photo":""},"m_run3":{"id":"m_run3","room":"main","type":"person","name":"Runner 3","note":"","x":-120,"z":15,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"running","photo":""},"m_run4":{"id":"m_run4","room":"main","type":"person","name":"Runner 4","note":"","x":-60,"z":15,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"running","photo":""},"m_koch":{"id":"m_koch","room":"main","type":"person","name":"Koch (Live Koch Show)","note":"","x":-240,"z":-75,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"solo","photo":""},"m_juggler":{"id":"m_juggler","room":"main","type":"person","name":"Apple Biting Juggler","note":"","x":-180,"z":-75,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"solo","photo":""},"m_morpheus":{"id":"m_morpheus","room":"main","type":"person","name":"Kaufland Morpheus","note":"","x":-120,"z":-75,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"solo","photo":""},"m_mady":{"id":"m_mady","room":"main","type":"person","name":"Mady Morrison (Yoga-Trainerin)","note":"","x":-60,"z":-75,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"solo","photo":""},"m_yoga1":{"id":"m_yoga1","room":"main","type":"person","name":"Yoga-Statist 1","note":"","x":-240,"z":-165,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"sonstige","photo":""},"m_yoga2":{"id":"m_yoga2","room":"main","type":"person","name":"Yoga-Statist 2","note":"","x":-180,"z":-165,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"sonstige","photo":""},"m_yoga3":{"id":"m_yoga3","room":"main","type":"person","name":"Yoga-Statist 3","note":"","x":-120,"z":-165,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"sonstige","photo":""},"m_yoga4":{"id":"m_yoga4","room":"main","type":"person","name":"Yoga-Statist 4","note":"","x":-60,"z":-165,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"sonstige","photo":""},"m_auktionaer":{"id":"m_auktionaer","room":"main","type":"person","name":"Auktionär","note":"","x":0,"z":-75,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"solo","photo":""},"m_mi1":{"id":"m_mi1","room":"main","type":"person","name":"Micro Influencer 1","note":"","x":-300,"z":60,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"creator","photo":""},"m_mi2":{"id":"m_mi2","room":"main","type":"person","name":"Micro Influencer 2","note":"","x":-240,"z":60,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"creator","photo":""},"m_ch1":{"id":"m_ch1","room":"main","type":"person","name":"Cheerleaderin 1","note":"","x":-300,"z":105,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"cheer","photo":""},"m_ch2":{"id":"m_ch2","room":"main","type":"person","name":"Cheerleaderin 2","note":"","x":-240,"z":105,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"cheer","photo":""},"m_ch3":{"id":"m_ch3","room":"main","type":"person","name":"Cheerleaderin 3","note":"","x":-180,"z":105,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"cheer","photo":""},"m_ch4":{"id":"m_ch4","room":"main","type":"person","name":"Cheerleaderin 4","note":"","x":-120,"z":105,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"cheer","photo":""},"m_dj":{"id":"m_dj","room":"main","type":"person","name":"DJ","note":"","x":60,"z":-75,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"solo","photo":""},"m_og1":{"id":"m_og1","room":"main","type":"person","name":"Obst/Gemüse-Statist 1","note":"","x":-300,"z":150,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"moshpit","photo":""},"m_og2":{"id":"m_og2","room":"main","type":"person","name":"Obst/Gemüse-Statist 2","note":"","x":-240,"z":150,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"moshpit","photo":""},"m_og3":{"id":"m_og3","room":"main","type":"person","name":"Obst/Gemüse-Statist 3","note":"","x":-180,"z":150,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"moshpit","photo":""},"m_og4":{"id":"m_og4","room":"main","type":"person","name":"Obst/Gemüse-Statist 4","note":"","x":-120,"z":150,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"moshpit","photo":""},"m_xara":{"id":"m_xara","room":"main","type":"person","name":"Xara (Kaufland-Maskottchen)","note":"","x":-60,"z":150,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"moshpit","photo":""},"m_robot":{"id":"m_robot","room":"main","type":"person","name":"AI Roboter","note":"","x":120,"z":-75,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"solo","photo":""},"m_pad1":{"id":"m_pad1","room":"main","type":"person","name":"Padelspieler 1","note":"","x":0,"z":-165,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"sonstige","photo":""},"m_pad2":{"id":"m_pad2","room":"main","type":"person","name":"Padelspieler 2","note":"","x":60,"z":-165,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"sonstige","photo":""},"m_nano":{"id":"m_nano","room":"main","type":"person","name":"Nanocreator","note":"","x":-180,"z":60,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":null,"group":"creator","photo":""},"k_einstieg_1":{"id":"k_einstieg_1","room":"k_einstieg","type":"buzzer","name":"Roter Button – Neues Jahr, neue Vorsätze? Dann drück mich!","note":"Roter Panic Button – in jedem Raum","x":-310,"z":-215,"y":0,"w":40,"d":40,"h":120,"rot":0,"color":"#d32f2f","img":"","src":null},"k_einstieg_2":{"id":"k_einstieg_2","room":"k_einstieg","type":"wallpanel","name":"Kaufland-Wand","note":"","x":0,"z":-240,"y":0,"w":200,"d":10,"h":250,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_einstieg_3":{"id":"k_einstieg_3","room":"k_einstieg","type":"hangsign","name":"Kaufland-Schild","note":"","x":0,"z":-232,"y":200,"w":120,"d":5,"h":60,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_einstieg_4":{"id":"k_einstieg_4","room":"k_einstieg","type":"bench","name":"Hantelbank","note":"","x":-200,"z":-80,"y":0,"w":140,"d":55,"h":110,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_einstieg_5":{"id":"k_einstieg_5","room":"k_einstieg","type":"treadmill","name":"Laufband","note":"","x":-60,"z":-90,"y":0,"w":75,"d":170,"h":140,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_einstieg_6":{"id":"k_einstieg_6","room":"k_einstieg","type":"weightrack","name":"Hantel- & Kettlebell-Ablage","note":"","x":60,"z":-100,"y":0,"w":120,"d":50,"h":90,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_einstieg_7":{"id":"k_einstieg_7","room":"k_einstieg","type":"yogamat","name":"Yogamatte","note":"","x":160,"z":-70,"y":0,"w":60,"d":180,"h":1,"rot":0,"color":"#7e57c2","img":"","src":null},"k_einstieg_8":{"id":"k_einstieg_8","room":"k_einstieg","type":"rack","name":"Power Rack","note":"","x":270,"z":-90,"y":0,"w":120,"d":140,"h":230,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_einstieg_9":{"id":"k_einstieg_9","room":"k_einstieg","type":"shelf","name":"Einkaufsregal","note":"","x":-150,"z":-205,"y":0,"w":100,"d":45,"h":200,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_einstieg_10":{"id":"k_einstieg_10","room":"k_einstieg","type":"produce","name":"Obst & Gemüse-Stand","note":"","x":150,"z":-190,"y":0,"w":150,"d":80,"h":110,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_einstieg_11":{"id":"k_einstieg_11","room":"k_einstieg","type":"cart","name":"Einkaufswagen","note":"","x":-250,"z":40,"y":0,"w":60,"d":100,"h":100,"rot":0,"color":"#c62828","img":"","src":null},"k_einstieg_12":{"id":"k_einstieg_12","room":"k_einstieg","type":"person","name":"Kunde (Kaufland-Kunde)","note":"","x":-100,"z":120,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_kunde","group":"sonstige","photo":""},"k_einstieg_13":{"id":"k_einstieg_13","room":"k_einstieg","type":"person","name":"Urs Kalecinski","note":"","x":-30,"z":120,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_urs","group":"hauptrollen","photo":""},"k_einstieg_14":{"id":"k_einstieg_14","room":"k_einstieg","type":"person","name":"Bodybuilder 1","note":"","x":40,"z":120,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_bb1","group":"bodybuilder","photo":""},"k_einstieg_15":{"id":"k_einstieg_15","room":"k_einstieg","type":"person","name":"Bodybuilder 2","note":"","x":110,"z":120,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_bb2","group":"bodybuilder","photo":""},"k_01_1":{"id":"k_01_1","room":"k_01","type":"buzzer","name":"Roter Button – Neues Jahr, neue Vorsätze? Dann drück mich!","note":"Roter Panic Button – in jedem Raum","x":-310,"z":-215,"y":0,"w":40,"d":40,"h":120,"rot":0,"color":"#d32f2f","img":"","src":null},"k_01_2":{"id":"k_01_2","room":"k_01","type":"rack","name":"Power Rack","note":"","x":-60,"z":-140,"y":0,"w":120,"d":140,"h":230,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_01_3":{"id":"k_01_3","room":"k_01","type":"bench","name":"Hantelbank","note":"","x":100,"z":-100,"y":0,"w":140,"d":55,"h":110,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_01_4":{"id":"k_01_4","room":"k_01","type":"cartbar","name":"Einkaufswagen-Langhantel","note":"","x":-100,"z":0,"y":0,"w":200,"d":60,"h":100,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_01_5":{"id":"k_01_5","room":"k_01","type":"cart","name":"Einkaufswagen","note":"","x":-250,"z":-30,"y":0,"w":60,"d":100,"h":100,"rot":0,"color":"#c62828","img":"","src":null},"k_01_6":{"id":"k_01_6","room":"k_01","type":"weightrack","name":"Hantelablage","note":"","x":230,"z":-120,"y":0,"w":120,"d":50,"h":90,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_01_7":{"id":"k_01_7","room":"k_01","type":"person","name":"Sina Ruppenthal (Gewichtheberin)","note":"","x":-140,"z":140,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_sina","group":"solo","photo":""},"k_01_8":{"id":"k_01_8","room":"k_01","type":"person","name":"Gerrit","note":"","x":-70,"z":140,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_gerrit","group":"kaufland","photo":""},"k_01_9":{"id":"k_01_9","room":"k_01","type":"person","name":"Bodybuilder 1","note":"","x":0,"z":140,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_bb1","group":"bodybuilder","photo":""},"k_01_10":{"id":"k_01_10","room":"k_01","type":"person","name":"Cheerleaderin 1","note":"","x":70,"z":140,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_ch1","group":"cheer","photo":""},"k_01_11":{"id":"k_01_11","room":"k_01","type":"person","name":"Cheerleaderin 2","note":"","x":140,"z":140,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_ch2","group":"cheer","photo":""},"k_02_1":{"id":"k_02_1","room":"k_02","type":"buzzer","name":"Roter Button – Neues Jahr, neue Vorsätze? Dann drück mich!","note":"Roter Panic Button – in jedem Raum","x":-310,"z":-215,"y":0,"w":40,"d":40,"h":120,"rot":0,"color":"#d32f2f","img":"","src":null},"k_02_2":{"id":"k_02_2","room":"k_02","type":"floor","name":"Laufroute","note":"","x":0,"z":-60,"y":0,"w":200,"d":200,"h":1,"rot":0,"color":"#ffb74d","img":"","src":null},"k_02_3":{"id":"k_02_3","room":"k_02","type":"floor","name":"Laufroute","note":"","x":200,"z":-60,"y":0,"w":200,"d":200,"h":1,"rot":0,"color":"#ffb74d","img":"","src":null},"k_02_4":{"id":"k_02_4","room":"k_02","type":"floor","name":"Laufroute","note":"","x":-200,"z":-60,"y":0,"w":200,"d":200,"h":1,"rot":0,"color":"#ffb74d","img":"","src":null},"k_02_5":{"id":"k_02_5","room":"k_02","type":"treadmill","name":"Laufband","note":"","x":-250,"z":-165.0,"y":0,"w":75,"d":170,"h":140,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_02_6":{"id":"k_02_6","room":"k_02","type":"produce","name":"Obst & Gemüse-Stand","note":"","x":200,"z":-190,"y":0,"w":150,"d":80,"h":110,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_02_7":{"id":"k_02_7","room":"k_02","type":"stand","name":"Energy-Gel Aufsteller","note":"","x":260,"z":-80,"y":0,"w":60,"d":40,"h":180,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_02_8":{"id":"k_02_8","room":"k_02","type":"person","name":"Pacemaker","note":"","x":-140,"z":90,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_pace","group":"running","photo":""},"k_02_9":{"id":"k_02_9","room":"k_02","type":"person","name":"Runner 1","note":"","x":-70,"z":90,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_run1","group":"running","photo":""},"k_02_10":{"id":"k_02_10","room":"k_02","type":"person","name":"Runner 2","note":"","x":0,"z":90,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_run2","group":"running","photo":""},"k_02_11":{"id":"k_02_11","room":"k_02","type":"person","name":"Runner 3","note":"","x":70,"z":90,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_run3","group":"running","photo":""},"k_02_12":{"id":"k_02_12","room":"k_02","type":"person","name":"Runner 4","note":"","x":140,"z":90,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_run4","group":"running","photo":""},"k_02_13":{"id":"k_02_13","room":"k_02","type":"person","name":"Urs Kalecinski","note":"","x":-70,"z":170,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_urs","group":"hauptrollen","photo":""},"k_02_14":{"id":"k_02_14","room":"k_02","type":"person","name":"Kunde (Kaufland-Kunde)","note":"","x":0,"z":170,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_kunde","group":"sonstige","photo":""},"k_03_1":{"id":"k_03_1","room":"k_03","type":"buzzer","name":"Roter Button – Neues Jahr, neue Vorsätze? Dann drück mich!","note":"Roter Panic Button – in jedem Raum","x":-310,"z":-215,"y":0,"w":40,"d":40,"h":120,"rot":0,"color":"#d32f2f","img":"","src":null},"k_03_2":{"id":"k_03_2","room":"k_03","type":"kitchen","name":"Mobile Kochstation","note":"","x":0,"z":-120,"y":0,"w":120,"d":60,"h":95,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_03_3":{"id":"k_03_3","room":"k_03","type":"table","name":"Präsentationstisch","note":"","x":150,"z":-30,"y":0,"w":150,"d":70,"h":95,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_03_4":{"id":"k_03_4","room":"k_03","type":"counter","name":"Servier-Theke","note":"","x":-170,"z":-40,"y":0,"w":200,"d":60,"h":105,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_03_5":{"id":"k_03_5","room":"k_03","type":"plant","name":"Pflanze","note":"","x":-290,"z":-200,"y":0,"w":50,"d":50,"h":120,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_03_6":{"id":"k_03_6","room":"k_03","type":"plant","name":"Pflanze","note":"","x":290,"z":-200,"y":0,"w":50,"d":50,"h":120,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_03_7":{"id":"k_03_7","room":"k_03","type":"screen","name":"Screen (Koch-Show)","note":"","x":0,"z":-235,"y":90,"w":160,"d":10,"h":90,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_03_8":{"id":"k_03_8","room":"k_03","type":"person","name":"Koch (Live Koch Show)","note":"","x":0,"z":-30,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_koch","group":"solo","photo":""},"k_04_1":{"id":"k_04_1","room":"k_04","type":"buzzer","name":"Roter Button – Neues Jahr, neue Vorsätze? Dann drück mich!","note":"Roter Panic Button – in jedem Raum","x":-310,"z":-215,"y":0,"w":40,"d":40,"h":120,"rot":0,"color":"#d32f2f","img":"","src":null},"k_04_2":{"id":"k_04_2","room":"k_04","type":"produce","name":"Obst & Gemüse-Stand","note":"","x":0,"z":-170,"y":0,"w":150,"d":80,"h":110,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_04_3":{"id":"k_04_3","room":"k_04","type":"weightrack","name":"Kettlebell-Rack","note":"","x":-210,"z":-100,"y":0,"w":120,"d":50,"h":90,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_04_4":{"id":"k_04_4","room":"k_04","type":"stand","name":"Aufsteller Äpfel","note":"","x":210,"z":-100,"y":0,"w":60,"d":40,"h":180,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_04_5":{"id":"k_04_5","room":"k_04","type":"floor","name":"Bühnenfläche","note":"","x":0,"z":20,"y":0,"w":200,"d":200,"h":1,"rot":0,"color":"#ffb74d","img":"","src":null},"k_04_6":{"id":"k_04_6","room":"k_04","type":"person","name":"Apple Biting Juggler","note":"","x":0,"z":20,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_juggler","group":"solo","photo":""},"k_05_1":{"id":"k_05_1","room":"k_05","type":"buzzer","name":"Roter Button – Neues Jahr, neue Vorsätze? Dann drück mich!","note":"Roter Panic Button – in jedem Raum","x":-310,"z":-215,"y":0,"w":40,"d":40,"h":120,"rot":0,"color":"#d32f2f","img":"","src":null},"k_05_2":{"id":"k_05_2","room":"k_05","type":"shelf","name":"Kühlregal (Protein-Quark)","note":"","x":-130,"z":-200,"y":0,"w":100,"d":45,"h":200,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_05_3":{"id":"k_05_3","room":"k_05","type":"shelf","name":"Kühlregal (Protein-Quark)","note":"","x":0,"z":-200,"y":0,"w":100,"d":45,"h":200,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_05_4":{"id":"k_05_4","room":"k_05","type":"shelf","name":"Kühlregal (Protein-Quark)","note":"","x":130,"z":-200,"y":0,"w":100,"d":45,"h":200,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_05_5":{"id":"k_05_5","room":"k_05","type":"cart","name":"Einkaufswagen","note":"","x":-220,"z":20,"y":0,"w":60,"d":100,"h":100,"rot":0,"color":"#c62828","img":"","src":null},"k_05_6":{"id":"k_05_6","room":"k_05","type":"stand","name":"Aufsteller Quark","note":"","x":200,"z":-60,"y":0,"w":60,"d":40,"h":180,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_05_7":{"id":"k_05_7","room":"k_05","type":"hangsign","name":"Schild Protein-Quark","note":"","x":0,"z":-232,"y":200,"w":120,"d":5,"h":60,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_05_8":{"id":"k_05_8","room":"k_05","type":"person","name":"Kaufland Morpheus","note":"","x":-70,"z":100,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_morpheus","group":"solo","photo":""},"k_05_9":{"id":"k_05_9","room":"k_05","type":"person","name":"Gerrit","note":"","x":0,"z":100,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_gerrit","group":"kaufland","photo":""},"k_05_10":{"id":"k_05_10","room":"k_05","type":"person","name":"Kunde (Kaufland-Kunde)","note":"","x":70,"z":100,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_kunde","group":"sonstige","photo":""},"k_06_1":{"id":"k_06_1","room":"k_06","type":"buzzer","name":"Roter Button – Neues Jahr, neue Vorsätze? Dann drück mich!","note":"Roter Panic Button – in jedem Raum","x":-310,"z":-215,"y":0,"w":40,"d":40,"h":120,"rot":0,"color":"#d32f2f","img":"","src":null},"k_06_2":{"id":"k_06_2","room":"k_06","type":"yogamat","name":"Yogamatte","note":"","x":-210,"z":40,"y":0,"w":60,"d":180,"h":1,"rot":0,"color":"#7e57c2","img":"","src":null},"k_06_3":{"id":"k_06_3","room":"k_06","type":"yogamat","name":"Yogamatte","note":"","x":-110,"z":40,"y":0,"w":60,"d":180,"h":1,"rot":0,"color":"#7e57c2","img":"","src":null},"k_06_4":{"id":"k_06_4","room":"k_06","type":"yogamat","name":"Yogamatte","note":"","x":-10,"z":40,"y":0,"w":60,"d":180,"h":1,"rot":0,"color":"#7e57c2","img":"","src":null},"k_06_5":{"id":"k_06_5","room":"k_06","type":"yogamat","name":"Yogamatte","note":"","x":90,"z":40,"y":0,"w":60,"d":180,"h":1,"rot":0,"color":"#7e57c2","img":"","src":null},"k_06_6":{"id":"k_06_6","room":"k_06","type":"yogamat","name":"Yogamatte","note":"","x":190,"z":40,"y":0,"w":60,"d":180,"h":1,"rot":0,"color":"#7e57c2","img":"","src":null},"k_06_7":{"id":"k_06_7","room":"k_06","type":"podium","name":"Podest Trainerin","note":"","x":0,"z":-130,"y":0,"w":150,"d":150,"h":30,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_06_8":{"id":"k_06_8","room":"k_06","type":"placeholder","name":"Klangschale (Platzhalter)","note":"","x":150,"z":-130,"y":0,"w":30,"d":30,"h":20,"rot":0,"color":"#ffd54f","img":"","src":null},"k_06_9":{"id":"k_06_9","room":"k_06","type":"person","name":"Mady Morrison (Yoga-Trainerin)","note":"","x":-175,"z":-30,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_mady","group":"solo","photo":""},"k_06_10":{"id":"k_06_10","room":"k_06","type":"person","name":"Yoga-Statist 1","note":"","x":-105,"z":-30,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_yoga1","group":"sonstige","photo":""},"k_06_11":{"id":"k_06_11","room":"k_06","type":"person","name":"Yoga-Statist 2","note":"","x":-35,"z":-30,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_yoga2","group":"sonstige","photo":""},"k_06_12":{"id":"k_06_12","room":"k_06","type":"person","name":"Yoga-Statist 3","note":"","x":35,"z":-30,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_yoga3","group":"sonstige","photo":""},"k_06_13":{"id":"k_06_13","room":"k_06","type":"person","name":"Yoga-Statist 4","note":"","x":105,"z":-30,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_yoga4","group":"sonstige","photo":""},"k_06_14":{"id":"k_06_14","room":"k_06","type":"person","name":"Urs Kalecinski","note":"","x":175,"z":-30,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_urs","group":"hauptrollen","photo":""},"k_07_1":{"id":"k_07_1","room":"k_07","type":"buzzer","name":"Roter Button – Neues Jahr, neue Vorsätze? Dann drück mich!","note":"Roter Panic Button – in jedem Raum","x":-310,"z":-215,"y":0,"w":40,"d":40,"h":120,"rot":0,"color":"#d32f2f","img":"","src":null},"k_07_2":{"id":"k_07_2","room":"k_07","type":"auction","name":"Auktionspult","note":"","x":0,"z":-120,"y":0,"w":60,"d":50,"h":120,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_07_3":{"id":"k_07_3","room":"k_07","type":"stand","name":"Tafel „DIE BEST PRICES AUKTION – 1x Eier“","note":"","x":160,"z":-140,"y":0,"w":60,"d":40,"h":180,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_07_4":{"id":"k_07_4","room":"k_07","type":"screen","name":"Screen (Preis-Anzeige)","note":"","x":0,"z":-235,"y":90,"w":160,"d":10,"h":90,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_07_5":{"id":"k_07_5","room":"k_07","type":"person","name":"Auktionär","note":"","x":-175,"z":60,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_auktionaer","group":"solo","photo":""},"k_07_6":{"id":"k_07_6","room":"k_07","type":"person","name":"Micro Influencer 1","note":"","x":-105,"z":60,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_mi1","group":"creator","photo":""},"k_07_7":{"id":"k_07_7","room":"k_07","type":"person","name":"Micro Influencer 2","note":"","x":-35,"z":60,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_mi2","group":"creator","photo":""},"k_07_8":{"id":"k_07_8","room":"k_07","type":"person","name":"Cheerleaderin 1","note":"","x":35,"z":60,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_ch1","group":"cheer","photo":""},"k_07_9":{"id":"k_07_9","room":"k_07","type":"person","name":"Cheerleaderin 2","note":"","x":105,"z":60,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_ch2","group":"cheer","photo":""},"k_07_10":{"id":"k_07_10","room":"k_07","type":"person","name":"Urs Kalecinski","note":"","x":175,"z":60,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_urs","group":"hauptrollen","photo":""},"k_08_1":{"id":"k_08_1","room":"k_08","type":"buzzer","name":"Roter Button – Neues Jahr, neue Vorsätze? Dann drück mich!","note":"Roter Panic Button – in jedem Raum","x":-310,"z":-215,"y":0,"w":40,"d":40,"h":120,"rot":0,"color":"#d32f2f","img":"","src":null},"k_08_2":{"id":"k_08_2","room":"k_08","type":"dj","name":"DJ-Pult","note":"","x":0,"z":-170,"y":0,"w":150,"d":60,"h":105,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_08_3":{"id":"k_08_3","room":"k_08","type":"floor","name":"Moshpit-Fläche","note":"","x":0,"z":40,"y":0,"w":200,"d":200,"h":1,"rot":0,"color":"#ffb74d","img":"","src":null},"k_08_4":{"id":"k_08_4","room":"k_08","type":"floor","name":"Moshpit-Fläche","note":"","x":200,"z":40,"y":0,"w":200,"d":200,"h":1,"rot":0,"color":"#ffb74d","img":"","src":null},"k_08_5":{"id":"k_08_5","room":"k_08","type":"floor","name":"Moshpit-Fläche","note":"","x":-200,"z":40,"y":0,"w":200,"d":200,"h":1,"rot":0,"color":"#ffb74d","img":"","src":null},"k_08_6":{"id":"k_08_6","room":"k_08","type":"stand","name":"Aufsteller Frische","note":"","x":-270,"z":-120,"y":0,"w":60,"d":40,"h":180,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_08_7":{"id":"k_08_7","room":"k_08","type":"softbox","name":"Licht-Softbox","note":"","x":280,"z":-190,"y":0,"w":60,"d":60,"h":200,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_08_8":{"id":"k_08_8","room":"k_08","type":"person","name":"DJ","note":"","x":-300,"z":-20,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_dj","group":"solo","photo":""},"k_08_9":{"id":"k_08_9","room":"k_08","type":"person","name":"Obst/Gemüse-Statist 1","note":"","x":-240,"z":-20,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_og1","group":"moshpit","photo":""},"k_08_10":{"id":"k_08_10","room":"k_08","type":"person","name":"Obst/Gemüse-Statist 2","note":"","x":-180,"z":-20,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_og2","group":"moshpit","photo":""},"k_08_11":{"id":"k_08_11","room":"k_08","type":"person","name":"Obst/Gemüse-Statist 3","note":"","x":-120,"z":-20,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_og3","group":"moshpit","photo":""},"k_08_12":{"id":"k_08_12","room":"k_08","type":"person","name":"Obst/Gemüse-Statist 4","note":"","x":-60,"z":-20,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_og4","group":"moshpit","photo":""},"k_08_13":{"id":"k_08_13","room":"k_08","type":"person","name":"Xara (Kaufland-Maskottchen)","note":"","x":0,"z":-20,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_xara","group":"moshpit","photo":""},"k_08_14":{"id":"k_08_14","room":"k_08","type":"person","name":"Cheerleaderin 1","note":"","x":60,"z":-20,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_ch1","group":"cheer","photo":""},"k_08_15":{"id":"k_08_15","room":"k_08","type":"person","name":"Cheerleaderin 2","note":"","x":120,"z":-20,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_ch2","group":"cheer","photo":""},"k_08_16":{"id":"k_08_16","room":"k_08","type":"person","name":"Bodybuilder 1","note":"","x":180,"z":-20,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_bb1","group":"bodybuilder","photo":""},"k_08_17":{"id":"k_08_17","room":"k_08","type":"person","name":"Bodybuilder 2","note":"","x":240,"z":-20,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_bb2","group":"bodybuilder","photo":""},"k_08_18":{"id":"k_08_18","room":"k_08","type":"person","name":"Urs Kalecinski","note":"","x":300,"z":-20,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_urs","group":"hauptrollen","photo":""},"k_09_1":{"id":"k_09_1","room":"k_09","type":"buzzer","name":"Roter Button – Neues Jahr, neue Vorsätze? Dann drück mich!","note":"Roter Panic Button – in jedem Raum","x":-310,"z":-215,"y":0,"w":40,"d":40,"h":120,"rot":0,"color":"#d32f2f","img":"","src":null},"k_09_2":{"id":"k_09_2","room":"k_09","type":"dj","name":"DJ-Pult","note":"","x":0,"z":-150,"y":0,"w":150,"d":60,"h":105,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_09_3":{"id":"k_09_3","room":"k_09","type":"podium","name":"Roboter-Podest","note":"","x":0,"z":-40,"y":0,"w":150,"d":150,"h":30,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_09_4":{"id":"k_09_4","room":"k_09","type":"screen","name":"Screen (AI-Show)","note":"","x":0,"z":-235,"y":90,"w":160,"d":10,"h":90,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_09_5":{"id":"k_09_5","room":"k_09","type":"softbox","name":"Licht-Softbox","note":"","x":-260,"z":-170,"y":0,"w":60,"d":60,"h":200,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_09_6":{"id":"k_09_6","room":"k_09","type":"person","name":"AI Roboter","note":"","x":0,"z":-40,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_robot","group":"solo","photo":""},"k_10_1":{"id":"k_10_1","room":"k_10","type":"buzzer","name":"Roter Button – Neues Jahr, neue Vorsätze? Dann drück mich!","note":"Roter Panic Button – in jedem Raum","x":-310,"z":-215,"y":0,"w":40,"d":40,"h":120,"rot":0,"color":"#d32f2f","img":"","src":null},"k_10_2":{"id":"k_10_2","room":"k_10","type":"floor","name":"Cheer-Fläche","note":"","x":0,"z":0,"y":0,"w":200,"d":200,"h":1,"rot":0,"color":"#ffb74d","img":"","src":null},"k_10_3":{"id":"k_10_3","room":"k_10","type":"floor","name":"Cheer-Fläche","note":"","x":200,"z":0,"y":0,"w":200,"d":200,"h":1,"rot":0,"color":"#ffb74d","img":"","src":null},"k_10_4":{"id":"k_10_4","room":"k_10","type":"floor","name":"Cheer-Fläche","note":"","x":-200,"z":0,"y":0,"w":200,"d":200,"h":1,"rot":0,"color":"#ffb74d","img":"","src":null},"k_10_5":{"id":"k_10_5","room":"k_10","type":"placeholder","name":"Brokkoli-Pompons (Platzhalter)","note":"","x":250,"z":-170,"y":0,"w":60,"d":60,"h":40,"rot":0,"color":"#43a047","img":"","src":null},"k_10_6":{"id":"k_10_6","room":"k_10","type":"screen","name":"Screen","note":"","x":0,"z":-235,"y":90,"w":160,"d":10,"h":90,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_10_7":{"id":"k_10_7","room":"k_10","type":"person","name":"Cheerleaderin 1","note":"","x":-105,"z":-20,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_ch1","group":"cheer","photo":""},"k_10_8":{"id":"k_10_8","room":"k_10","type":"person","name":"Cheerleaderin 2","note":"","x":-35,"z":-20,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_ch2","group":"cheer","photo":""},"k_10_9":{"id":"k_10_9","room":"k_10","type":"person","name":"Cheerleaderin 3","note":"","x":35,"z":-20,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_ch3","group":"cheer","photo":""},"k_10_10":{"id":"k_10_10","room":"k_10","type":"person","name":"Cheerleaderin 4","note":"","x":105,"z":-20,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_ch4","group":"cheer","photo":""},"k_11_1":{"id":"k_11_1","room":"k_11","type":"buzzer","name":"Roter Button – Neues Jahr, neue Vorsätze? Dann drück mich!","note":"Roter Panic Button – in jedem Raum","x":-310,"z":-215,"y":0,"w":40,"d":40,"h":120,"rot":0,"color":"#d32f2f","img":"","src":null},"k_11_2":{"id":"k_11_2","room":"k_11","type":"floor","name":"Padel-Court","note":"","x":0,"z":-20,"y":0,"w":200,"d":200,"h":1,"rot":0,"color":"#ffb74d","img":"","src":null},"k_11_3":{"id":"k_11_3","room":"k_11","type":"floor","name":"Padel-Court","note":"","x":200,"z":-20,"y":0,"w":200,"d":200,"h":1,"rot":0,"color":"#ffb74d","img":"","src":null},"k_11_4":{"id":"k_11_4","room":"k_11","type":"floor","name":"Padel-Court","note":"","x":-200,"z":-20,"y":0,"w":200,"d":200,"h":1,"rot":0,"color":"#ffb74d","img":"","src":null},"k_11_5":{"id":"k_11_5","room":"k_11","type":"placeholder","name":"Padel-Netz (Platzhalter)","note":"","x":0,"z":-20,"y":0,"w":400,"d":5,"h":90,"rot":0,"color":"#eeeeee","img":"","src":null},"k_11_6":{"id":"k_11_6","room":"k_11","type":"placeholder","name":"Schläger & Ball (Platzhalter)","note":"","x":-250,"z":-190,"y":0,"w":60,"d":30,"h":20,"rot":0,"color":"#ffeb3b","img":"","src":null},"k_11_7":{"id":"k_11_7","room":"k_11","type":"person","name":"Padelspieler 1","note":"","x":-100,"z":-120,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_pad1","group":"sonstige","photo":""},"k_11_8":{"id":"k_11_8","room":"k_11","type":"person","name":"Padelspieler 2","note":"","x":100,"z":-120,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_pad2","group":"sonstige","photo":""},"k_schluss_1":{"id":"k_schluss_1","room":"k_schluss","type":"buzzer","name":"Roter Button – Neues Jahr, neue Vorsätze? Dann drück mich!","note":"Roter Panic Button – in jedem Raum","x":-310,"z":-215,"y":0,"w":40,"d":40,"h":120,"rot":0,"color":"#d32f2f","img":"","src":null},"k_schluss_2":{"id":"k_schluss_2","room":"k_schluss","type":"bench","name":"Hantelbank","note":"","x":-200,"z":-100,"y":0,"w":140,"d":55,"h":110,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_schluss_3":{"id":"k_schluss_3","room":"k_schluss","type":"cart","name":"Einkaufswagen mit Geschenkschleife","note":"","x":200,"z":-100,"y":0,"w":60,"d":100,"h":100,"rot":0,"color":"#c62828","img":"","src":null},"k_schluss_4":{"id":"k_schluss_4","room":"k_schluss","type":"placeholder","name":"Schleife (Platzhalter)","note":"","x":200,"z":-100,"y":0,"w":40,"d":40,"h":20,"rot":0,"color":"#e91e63","img":"","src":null},"k_schluss_5":{"id":"k_schluss_5","room":"k_schluss","type":"wallpanel","name":"Kaufland-Wand","note":"","x":0,"z":-240,"y":0,"w":200,"d":10,"h":250,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_schluss_6":{"id":"k_schluss_6","room":"k_schluss","type":"hangsign","name":"Kaufland-Schild","note":"","x":0,"z":-232,"y":200,"w":120,"d":5,"h":60,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_schluss_7":{"id":"k_schluss_7","room":"k_schluss","type":"person","name":"Urs Kalecinski","note":"","x":-140,"z":100,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_urs","group":"hauptrollen","photo":""},"k_schluss_8":{"id":"k_schluss_8","room":"k_schluss","type":"person","name":"Kunde (Kaufland-Kunde)","note":"","x":-70,"z":100,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_kunde","group":"sonstige","photo":""},"k_schluss_9":{"id":"k_schluss_9","room":"k_schluss","type":"person","name":"Xara (Kaufland-Maskottchen)","note":"","x":0,"z":100,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_xara","group":"moshpit","photo":""},"k_schluss_10":{"id":"k_schluss_10","room":"k_schluss","type":"person","name":"Cheerleaderin 1","note":"","x":70,"z":100,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_ch1","group":"cheer","photo":""},"k_schluss_11":{"id":"k_schluss_11","room":"k_schluss","type":"person","name":"Cheerleaderin 2","note":"","x":140,"z":100,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_ch2","group":"cheer","photo":""},"k_12_1":{"id":"k_12_1","room":"k_12","type":"buzzer","name":"Roter Button – Neues Jahr, neue Vorsätze? Dann drück mich!","note":"Roter Panic Button – in jedem Raum","x":-310,"z":-215,"y":0,"w":40,"d":40,"h":120,"rot":0,"color":"#d32f2f","img":"","src":null},"k_12_2":{"id":"k_12_2","room":"k_12","type":"cart","name":"Einkaufswagen mit Obst & Gemüse","note":"","x":-200,"z":-100,"y":0,"w":60,"d":100,"h":100,"rot":0,"color":"#c62828","img":"","src":null},"k_12_3":{"id":"k_12_3","room":"k_12","type":"produce","name":"Obst & Gemüse-Stand","note":"","x":200,"z":-150,"y":0,"w":150,"d":80,"h":110,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_12_4":{"id":"k_12_4","room":"k_12","type":"stand","name":"Aufsteller Nano-Creator","note":"","x":-270,"z":-190,"y":0,"w":60,"d":40,"h":180,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_12_5":{"id":"k_12_5","room":"k_12","type":"screen","name":"Screen (Creator-Feed)","note":"","x":0,"z":-235,"y":90,"w":160,"d":10,"h":90,"rot":0,"color":"#9e9e9e","img":"","src":null},"k_12_6":{"id":"k_12_6","room":"k_12","type":"person","name":"Nanocreator","note":"","x":-175,"z":60,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_nano","group":"creator","photo":""},"k_12_7":{"id":"k_12_7","room":"k_12","type":"person","name":"Micro Influencer 1","note":"","x":-105,"z":60,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_mi1","group":"creator","photo":""},"k_12_8":{"id":"k_12_8","room":"k_12","type":"person","name":"Micro Influencer 2","note":"","x":-35,"z":60,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_mi2","group":"creator","photo":""},"k_12_9":{"id":"k_12_9","room":"k_12","type":"person","name":"Cheerleaderin 1","note":"","x":35,"z":60,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_ch1","group":"cheer","photo":""},"k_12_10":{"id":"k_12_10","room":"k_12","type":"person","name":"Cheerleaderin 2","note":"","x":105,"z":60,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_ch2","group":"cheer","photo":""},"k_12_11":{"id":"k_12_11","room":"k_12","type":"person","name":"Auktionär","note":"","x":175,"z":60,"y":0,"w":50,"d":30,"h":175,"rot":0,"color":"#9e9e9e","img":"","src":"m_auktionaer","group":"solo","photo":""}}};
+
+// ===== App (Artifact-Version): Zustand, Backend über db/room/user, Räume, Panels, Tastatur =====
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ROTBTNS = '<div class="rotrow"><button data-act="rot" data-step="-90" title="−90° (Shift+R)">⟲ 90°</button><button data-act="rot" data-step="-15">⟲ 15°</button><button data-act="rot" data-step="15">15° ⟳</button><button data-act="rot" data-step="90" title="+90° (R)">90° ⟳</button></div>';
+const uid = () => Math.random().toString(36).slice(2, 10);
+const clone = o => JSON.parse(JSON.stringify(o));
+const ls = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
+
+let lang = detectLang(), t = makeT(lang);
+const S = { rooms: [{ id: 'main', name: 'Hauptraum' }], objects: {}, catalog: {}, versions: [], editable: false, you: 'me', clients: [], room: 'main', sel: new Set(), snap: true, showNotes: false, openNotes: new Set(), connected: false };
+const COLORS = ['#e53935', '#fb8c00', '#fdd835', '#43a047', '#00acc1', '#1e88e5', '#8e24aa', '#ec407a', '#6d4c41', '#9e9e9e', '#37474f', '#ffffff'];
+const openCats = new Set(['basis']);
+let myName = ls.get('dm_name') || '', myColor = ls.get('dm_color') || ['#e53935', '#1e88e5', '#43a047', '#8e24aa', '#fb8c00', '#00897b', '#d81b60'][Math.floor(Math.random() * 7)];
+ls.set('dm_color', myColor);
+const caps = { db: null, room: null, user: null, downloads: null, sample: null };
+let backendState = 'loading'; // loading | ready | unavailable
+
+// ---------- Dialoge (alert/confirm/prompt sind im Viewer blockiert) ----------
+function dialog({ msg, input = null, okLabel = 'OK', cancel = true }) {
+  return new Promise(res => {
+    const m = $('#modal'); m.innerHTML = `<div class="box"><div class="msg">${esc(msg)}</div>${input !== null ? `<input type="text" id="dlgIn" value="${esc(input)}">` : ''}<div class="row" style="justify-content:flex-end;margin-top:12px">${cancel ? `<button id="dlgNo">${esc(lang === 'de' ? 'Abbrechen' : lang === 'zh' ? '取消' : 'Cancel')}</button>` : ''}<button class="primary" id="dlgOk">${esc(okLabel)}</button></div></div>`;
+    m.hidden = false; const inp = $('#dlgIn'); if (inp) { inp.focus(); inp.select(); } else $('#dlgOk').focus();
+    const done = v => { m.hidden = true; m.innerHTML = ''; res(v); };
+    $('#dlgOk').onclick = () => done(inp ? inp.value : true);
+    if ($('#dlgNo')) $('#dlgNo').onclick = () => done(inp ? null : false);
+    m.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); $('#dlgOk').click(); } else if (e.key === 'Escape' && cancel) { e.preventDefault(); done(inp ? null : false); } };
+  });
+}
+const askText = (msg, def = '') => dialog({ msg, input: def });
+const askConfirm = msg => dialog({ msg });
+
+// ---------- Backend ----------
+const wq = []; let pumping = false;
+function enqueue(task) {
+  if (task.kind === 'patch') { const prev = [...wq].reverse().find(x => x.id === task.id); if (prev && prev.kind === 'patch') { Object.assign(prev.p, task.p); return pump(); } }
+  wq.push(task); pump();
+}
+async function pump() {
+  if (pumping) return; pumping = true;
+  while (wq.length) {
+    const it = wq.shift();
+    try { await runTask(it); }
+    catch (e) { if (it.kind !== 'patch' && it.kind !== 'del' && e && e.code === 'invalid_argument') { S.editable = false; renderHeader(); renderLeft(); renderRight(true); toast(t('denied')); } else if (e && e.code === 'quota_exceeded') toast('Speicherlimit erreicht'); }
+  }
+  pumping = false;
+}
+async function runTask(it) {
+  const db = caps.db; if (!db) return;
+  if (it.kind === 'put') {
+    let o = it.o; if (JSON.stringify(o).length > 240000) { o = { ...o, img: '', photo: '' }; toast('Bild zu groß – ohne Bild gespeichert'); }
+    await db.doc('o/' + o.id).set(o);
+  } else if (it.kind === 'patch') {
+    if (JSON.stringify(it.p).length > 240000) { toast('Bild zu groß'); return; }
+    await db.doc('o/' + it.id).update(it.p);
+  } else if (it.kind === 'del') await db.doc('o/' + it.id).delete();
+  else if (it.kind === 'room') await db.doc('rooms/' + it.id).set({ name: it.name, ts: it.ts });
+  else if (it.kind === 'delroom') await db.doc('rooms/' + it.id).delete();
+  else if (it.kind === 'cat') await db.doc('meta/catalog').set({ names: clone(S.catalog) });
+  else if (it.kind === 'ver') { await db.doc('vsnap/' + it.id).set({ snap: it.snap }); await db.doc('vmeta/' + it.id).set({ name: it.name, ts: it.ts }); }
+  else if (it.kind === 'delver') { await db.doc('vmeta/' + it.id).delete(); await db.doc('vsnap/' + it.id).delete(); }
+}
+function tasksFor(ops) {
+  const tasks = [];
+  for (const op of ops) {
+    if (op.op === 'put') tasks.push({ kind: 'put', o: clone(op.o) });
+    else if (op.op === 'patch') tasks.push({ kind: 'patch', id: op.id, p: clone(op.p) });
+    else if (op.op === 'del') tasks.push({ kind: 'del', id: op.id });
+    else if (op.op === 'room') { const r = S.rooms.find(x => x.id === op.room.id); tasks.push({ kind: 'room', id: op.room.id, name: op.room.name, ts: (r && r.ts) || Date.now() }); }
+    else if (op.op === 'delroom') { for (const o of Object.values(S.objects)) if (o.room === op.id) tasks.push({ kind: 'del', id: o.id }); tasks.push({ kind: 'delroom', id: op.id }); }
+    else if (op.op === 'cat') tasks.push({ kind: 'cat' });
+  }
+  return tasks;
+}
+function sendOps() {} // (Platzhalter: Schreibzugriffe laufen über die Schreibwarteschlange)
+
+async function initBackend() {
+  const c = window.claude; if (!c || !c.use) { backendState = 'unavailable'; renderAll(); return; }
+  const get = async n => { try { return await c.use(n); } catch (e) { return null; } };
+  [caps.db, caps.room, caps.user, caps.downloads, caps.sample] = await Promise.all([get('db'), get('room'), get('user'), get('downloads'), get('sample')]);
+  if (caps.user) {
+    try { const me = await caps.user.me(); if (me && me.name && !myName) myName = me.name; } catch (e) {}
+    try { const can = await caps.user.can('data.write'); S.editable = can !== false; } catch (e) { S.editable = true; }
+  } else S.editable = !!caps.db;
+  if (!myName) myName = 'Gast';
+  if (!caps.db) { backendState = 'unavailable'; S.editable = false; renderAll(); return; }
+  backendState = 'ready'; S.connected = true;
+  const db = caps.db, errF = e => { if (e && e.code === 'revoked') { S.connected = false; renderStatus(); } };
+  db.collection('o').onSnapshot(snap => {
+    for (const ch of snap.docChanges()) {
+      const id = ch.doc.id;
+      if (ch.type === 'removed') { delete S.objects[id]; S.sel.delete(id); }
+      else if (dragIds.has(id)) continue;
+      else if (ch.type === 'modified' && !S.objects[id]) continue;
+      else S.objects[id] = { ...ch.doc.data() };
+    }
+    afterRemote();
+  }, errF);
+  db.collection('rooms').onSnapshot(snap => {
+    const rooms = [{ id: 'main', name: 'Hauptraum', ts: 0 }];
+    for (const d of snap.docs) { const x = d.data(); if (d.id === 'main') rooms[0].name = x.name; else rooms.push({ id: d.id, name: x.name, ts: x.ts || 0 }); }
+    rooms.sort((a, b) => a.ts - b.ts); S.rooms = rooms;
+    if (!S.rooms.find(r => r.id === S.room)) { S.room = 'main'; S.sel.clear(); }
+    afterRemote();
+  }, errF);
+  db.doc('meta/catalog').onSnapshot(s => { S.catalog = s.exists ? { ...(s.data().names || {}) } : {}; renderLeft(); }, errF);
+  db.collection('vmeta').orderBy('ts', 'desc').onSnapshot(snap => { S.versions = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderRight(true); }, errF);
+  setTimeout(async () => {
+    try {
+      if (!S.editable || Object.keys(S.objects).length || S.rooms.length > 1) return;
+      const m = await db.doc('meta/seeded').get(); if (m.exists) return;
+      await db.doc('meta/seeded').set({ ts: Date.now(), what: 'kaufland-briefing' });
+      applyState(JSON.parse(JSON.stringify(SEED_STATE)), false); toast('Kaufland-Briefing geladen');
+    } catch (e) {}
+  }, 2500);
+  if (caps.room) {
+    caps.room.onPeers(ch => {
+      S.clients = ch.peers.filter(p => !p.isMe).map(p => { const q = p.presence || {}; return { id: p.peer, name: String(q.name || 'Gast'), color: /^#[0-9a-f]{3,8}$/i.test(q.color) ? q.color : '#888', room: String(q.room || 'main'), sel: Array.isArray(q.sel) ? q.sel.map(String) : [] }; });
+      renderAvatars(); eng.refreshSelection(); eng.rebuildOverlay();
+    });
+    sendPresence();
+  }
+  renderAll();
+}
+function afterRemote() {
+  for (const id of [...S.sel]) if (!S.objects[id] || S.objects[id].room !== S.room) S.sel.delete(id);
+  eng.refresh(); renderLeft(); renderRight(false); renderHeader();
+}
+function sendPresence() { if (caps.room) caps.room.presence({ name: myName, color: myColor, room: S.room, sel: [...S.sel].slice(0, 40) }).catch(() => {}); }
+
+// ---------- Änderungen (lokal + schreiben + Undo) ----------
+function applyOp(op) {
+  if (op.op === 'put') S.objects[op.o.id] = op.o;
+  else if (op.op === 'patch') { const o = S.objects[op.id]; if (o) Object.assign(o, op.p); }
+  else if (op.op === 'del') { delete S.objects[op.id]; S.sel.delete(op.id); }
+  else if (op.op === 'room') { const r = S.rooms.find(x => x.id === op.room.id); if (r) r.name = op.room.name; else S.rooms.push({ ...op.room, ts: Date.now() }); }
+  else if (op.op === 'delroom') {
+    S.rooms = S.rooms.filter(r => r.id !== op.id);
+    for (const id of Object.keys(S.objects)) if (S.objects[id].room === op.id) { delete S.objects[id]; S.sel.delete(id); }
+    if (S.room === op.id) S.room = 'main';
+  }
+  else if (op.op === 'cat') { if (op.name) S.catalog[op.type] = op.name; else delete S.catalog[op.type]; }
+}
+const undoStack = [];
+function commit(ops, undo = true) {
+  if (!S.editable) { toast(t('viewOnly')); return false; }
+  if (!S.connected) { toast(t('reconnecting')); return false; }
+  const inv = [];
+  for (const op of ops) {
+    const prev = S.objects[op.id || (op.o && op.o.id)];
+    if (op.op === 'put') inv.unshift(prev ? { op: 'put', o: clone(prev) } : { op: 'del', id: op.o.id });
+    else if (op.op === 'patch' && prev) { const p = {}; for (const k of Object.keys(op.p)) p[k] = prev[k]; inv.unshift({ op: 'patch', id: op.id, p }); }
+    else if (op.op === 'del' && prev) inv.unshift({ op: 'put', o: clone(prev) });
+  }
+  const tasks = tasksFor(ops);
+  ops.forEach(applyOp);
+  tasks.forEach(enqueue);
+  if (undo && inv.length) { undoStack.push(inv); if (undoStack.length > 100) undoStack.shift(); }
+  eng.refresh(); renderLeft(); renderRight(false); renderHeader(); sendPresence();
+  return true;
+}
+function patchObjects(list, undo = true) {
+  const ops = [];
+  for (const { id, p } of list) {
+    const o = S.objects[id]; if (!o) continue;
+    ops.push({ op: 'patch', id, p });
+    if (o.room === 'main' && o.type === 'person') {
+      const q = {}; for (const k of ['name', 'photo', 'group']) if (k in p) q[k] = p[k];
+      if (Object.keys(q).length) for (const c of Object.values(S.objects)) if (c.src === id) { const cq = { ...q }; if ('name' in q) { const sp = splitTag(c.name); cq.name = sp.tag ? `${q.name} – ${sp.tag}` : q.name; } ops.push({ op: 'patch', id: c.id, p: cq }); }
+    }
+  }
+  if (ops.length) commit(ops, undo);
+}
+function undo() { const inv = undoStack.pop(); if (inv) { commit(inv, false); for (const id of [...S.sel]) if (!S.objects[id]) S.sel.delete(id); eng.refresh(); renderRight(true); } }
+
+// Versionen: Schnappschuss ohne Bilder (Bilder bleiben beim Öffnen erhalten)
+function snapshotState() {
+  const objects = {}; for (const [id, o] of Object.entries(S.objects)) objects[id] = { ...o, img: '', photo: '' };
+  return { rooms: S.rooms.map(r => ({ id: r.id, name: r.name })), objects, catalog: clone(S.catalog) };
+}
+function saveVersion(name) { const id = uid(), snap = JSON.stringify(snapshotState()); if (snap.length > 240000) { toast('Layout zu groß für eine Version'); return; } enqueue({ kind: 'ver', id, name, ts: Date.now(), snap }); S.versions = [{ id, name, ts: Date.now() }, ...S.versions]; renderRight(true); }
+function applyState(st, keepImages) {
+  const tasks = [];
+  for (const id of Object.keys(S.objects)) if (!st.objects[id]) tasks.push({ kind: 'del', id });
+  const newObjs = {};
+  for (const [id, o] of Object.entries(st.objects)) { const cur = S.objects[id]; const n = { ...o }; if (keepImages && cur) { if (!n.img) n.img = cur.img || ''; if (!n.photo) n.photo = cur.photo || ''; } newObjs[id] = n; tasks.push({ kind: 'put', o: n }); }
+  for (const r of S.rooms) if (r.id !== 'main' && !st.rooms.find(x => x.id === r.id)) tasks.push({ kind: 'delroom', id: r.id });
+  const rooms = [];
+  st.rooms.forEach((r, i) => { rooms.push({ id: r.id, name: r.name, ts: (S.rooms.find(x => x.id === r.id) || {}).ts || Date.now() + i }); if (r.id === 'main') { if (r.name !== 'Hauptraum') tasks.push({ kind: 'room', id: 'main', name: r.name, ts: 0 }); } else tasks.push({ kind: 'room', id: r.id, name: r.name, ts: rooms[rooms.length - 1].ts }); });
+  S.objects = newObjs; S.rooms = rooms.some(r => r.id === 'main') ? rooms : [{ id: 'main', name: 'Hauptraum', ts: 0 }, ...rooms]; S.catalog = { ...(st.catalog || {}) }; tasks.push({ kind: 'cat' });
+  if (!S.rooms.find(r => r.id === S.room)) S.room = 'main'; S.sel.clear();
+  tasks.forEach(enqueue); eng.refresh(); renderAll(); sendPresence();
+}
+async function openVersion(id) {
+  const v = S.versions.find(x => x.id === id); if (!v) return;
+  if (!await askConfirm(t('confirmRestore', v.name))) return;
+  try { const s = await caps.db.doc('vsnap/' + id).get(); if (!s.exists) throw 0; applyState(JSON.parse(s.data().snap), true); } catch (e) { toast('Version nicht lesbar'); }
+}
+
+// ---------- Objekte ----------
+const roomObjs = rid => Object.values(S.objects).filter(o => o.room === rid);
+const selObjs = () => [...S.sel].map(id => S.objects[id]).filter(Boolean);
+function newObject(type, room) {
+  const d = DEFS[type], n = roomObjs(room).length;
+  const o = { id: uid(), room, type, name: '', note: '', x: 0, z: 0, y: d.y, w: d.w, d: d.d, h: d.h, rot: 0, color: d.color, img: '', src: null };
+  if (type === 'person') { o.group = 'sonstige'; o.photo = ''; o.name = `${typeName('person', lang, S.catalog)} ${Object.values(S.objects).filter(x => x.type === 'person').length + 1}`; }
+  if (type === 'placeholder') o.name = typeName('placeholder', lang, S.catalog);
+  const c = freeSpot(o, room, n); o.x = c.x; o.z = c.z; return o;
+}
+function freeSpot(o, room, n) {
+  const others = roomObjs(room).filter(p => p.type !== 'floor');
+  const hit = (x, z) => o.type !== 'floor' && others.some(p => Math.abs(p.x - x) < (p.w + o.w) / 2 && Math.abs(p.z - z) < (p.d + o.d) / 2);
+  const cand = [];
+  for (let z = -250; z <= 250; z += 50) for (let x = -350; x <= 350; x += 50) cand.push([x, z]);
+  cand.sort((a, b) => Math.hypot(a[0], a[1] * 1.4) - Math.hypot(b[0], b[1] * 1.4));
+  for (const [x, z] of cand) { const c = clampPos(o, x, z); if (c.x === x && c.z === z && !hit(x, z)) return c; }
+  return clampPos(o, ((n % 7) - 3) * 90, (((n / 7) | 0) % 5 - 2) * 80);
+}
+function addFromCatalog(type) { const o = newObject(type, S.room); if (commit([{ op: 'put', o }])) { S.sel = new Set([o.id]); eng.refresh(); renderRight(true); sendPresence(); } }
+function copyObjects(ids, targetRoom, move) {
+  const ops = [];
+  for (const id of ids) {
+    const o = S.objects[id]; if (!o || o.room === targetRoom) continue;
+    if (move) ops.push({ op: 'patch', id, p: { room: targetRoom } });
+    else { const c = clone(o); c.id = uid(); c.room = targetRoom; c.src = o.room === 'main' ? o.id : o.src || null; ops.push({ op: 'put', o: c }); }
+  }
+  if (ops.length && commit(ops)) { if (move) S.sel.clear(); toast(t('copyDone', S.rooms.find(r => r.id === targetRoom).name)); eng.refresh(); renderRight(true); }
+}
+function duplicateSel() {
+  const ops = [], ids = [];
+  for (const o of selObjs()) { const c = clone(o); c.id = uid(); const p = clampPos(c, o.x + 20, o.z + 20); c.x = p.x; c.z = p.z; ops.push({ op: 'put', o: c }); ids.push(c.id); }
+  if (ops.length && commit(ops)) { S.sel = new Set(ids); eng.refresh(); renderRight(true); sendPresence(); }
+}
+const splitTag = name => { const m = /^(.*?)\s[–-]\s([^–-]+)$/.exec(name || ''); return m && allPoseTags().has(m[2].trim()) ? { base: m[1], tag: m[2].trim() } : { base: name || '', tag: '' }; };
+const nameFor = (base, pose) => { const tg = poseTag(pose, lang); return tg ? `${base} – ${tg}` : base; };
+let varSelP = '', varSelPose = 'run';
+function addVariant() {
+  const m = S.objects[varSelP]; if (!m || S.room === 'main') return;
+  const c = clone(m); c.id = uid(); c.room = S.room; c.src = m.id; c.pose = varSelPose; c.name = nameFor(splitTag(m.name).base, varSelPose); c.rot = 0; c.y = 0;
+  const sp = freeSpot(c, S.room, roomObjs(S.room).length); c.x = sp.x; c.z = sp.z;
+  if (commit([{ op: 'put', o: c }])) { S.sel = new Set([c.id]); eng.refresh(); renderRight(true); renderLeft(); sendPresence(); }
+}
+let clip = [], pasteN = 0;
+function copySel(cut) {
+  const l = selObjs(); if (!l.length) return; clip = l.map(o => clone(o)); pasteN = 0;
+  toast(`${l.length} × ${lang === 'de' ? 'kopiert' : lang === 'zh' ? '已复制' : 'copied'}`);
+  if (cut && S.editable) deleteSel();
+}
+function pasteClip() {
+  if (!clip.length || !S.editable) return; pasteN++;
+  const ops = [], ids = [];
+  for (const o of clip) {
+    const c = clone(o); c.id = uid(); const same = o.room === S.room; c.room = S.room;
+    c.src = o.type === 'person' && S.room !== 'main' ? (o.room === 'main' ? o.id : o.src || null) : null;
+    const p = clampPos(c, o.x + (same ? 20 * pasteN : 0), o.z + (same ? 20 * pasteN : 0)); c.x = p.x; c.z = p.z; ops.push({ op: 'put', o: c }); ids.push(c.id);
+  }
+  if (commit(ops)) { S.sel = new Set(ids); eng.refresh(); renderRight(true); renderLeft(); sendPresence(); }
+}
+function selectAll() { S.sel = new Set(roomObjs(S.room).map(o => o.id)); eng.refreshSelection(); eng.rebuildOverlay(); renderRight(true); renderLeft(); sendPresence(); }
+function deleteSel() { const ops = [...S.sel].filter(id => S.objects[id]).map(id => ({ op: 'del', id })); if (ops.length) { S.sel.clear(); commit(ops); sendPresence(); renderRight(true); } }
+function rotateSel(step) { patchObjects(selObjs().map(o => { const rot = (((o.rot || 0) + step) % 360 + 360) % 360; const c = clampPos({ ...o, rot }, o.x, o.z); return { id: o.id, p: { rot, x: c.x, z: c.z } }; })); }
+
+// ---------- Räume ----------
+function setRoom(id) { S.room = id; S.sel.clear(); eng.refresh(); renderAll(); sendPresence(); }
+async function addRoom() { const name = await askText(t('newRoomName'), `Set ${S.rooms.length}`); if (!name) return; const id = 'r' + uid(); if (commit([{ op: 'room', room: { id, name } }], false)) setRoom(id); }
+async function renameRoom(id) { const r = S.rooms.find(x => x.id === id); const name = await askText(t('renameRoom'), roomName(r)); if (name) commit([{ op: 'room', room: { id, name } }], false); }
+function dupRoom(id) {
+  const r = S.rooms.find(x => x.id === id), nid = 'r' + uid(); const ops = [{ op: 'room', room: { id: nid, name: roomName(r) + ' (2)' } }];
+  for (const o of roomObjs(id)) { const c = clone(o); c.id = uid(); c.room = nid; c.src = o.src || (id === 'main' ? o.id : null); ops.push({ op: 'put', o: c }); }
+  if (commit(ops, false)) setRoom(nid);
+}
+async function delRoom(id) { const r = S.rooms.find(x => x.id === id); if (id === 'main' || !await askConfirm(t('confirmDeleteRoom', r.name))) return; commit([{ op: 'delroom', id }], false); setRoom('main'); }
+const roomName = r => (r.id === 'main' && r.name === 'Hauptraum') ? t('mainRoom') : r.name;
+
+// ---------- Rendering ----------
+let toastTimer;
+function toast(msg) { const b = $('#banner'); b.textContent = msg; b.style.display = 'block'; clearTimeout(toastTimer); toastTimer = setTimeout(renderStatus, 2600); }
+function renderStatus() {
+  $('#dot').className = S.connected ? 'live' : ''; $('#statusText').textContent = S.connected ? t('live') : t('offline');
+  const b = $('#banner');
+  if (backendState === 'unavailable') { b.textContent = lang === 'de' ? 'Zum Mitarbeiten in Claude anmelden: Die Datenbank ist in dieser Ansicht nicht verfügbar.' : 'Sign in to Claude to collaborate: storage is unavailable in this view.'; b.style.display = 'block'; }
+  else if (!S.connected && backendState === 'ready') { b.textContent = t('reconnecting'); b.style.display = 'block'; } else b.style.display = 'none';
+}
+function renderAvatars() {
+  const list = [{ id: 'me', name: myName || 'Gast', color: myColor }, ...S.clients];
+  $('#avatars').innerHTML = list.map(c => `<span class="av" style="background:${esc(c.color)}" title="${esc(c.name)}${c.id === 'me' ? ' (' + t('you') + ')' : ''}">${esc((c.name || '?').trim().slice(0, 2).toUpperCase())}</span>`).join('');
+}
+function renderHeader() {
+  if (typeof aiBar !== 'undefined') aiVisible();
+  document.documentElement.lang = lang;
+  $('#hTitle').textContent = t('title'); $('#projName').textContent = '';
+  const pw = $('#pwBtn'); pw.textContent = S.editable ? t('editOn') : (window.__selfhost ? '🔒 ' + t('viewOnlyChip') + ' – Bearbeiten …' : t('viewOnlyChip')); pw.className = S.editable ? 'ok' : ''; pw.disabled = !(window.__selfhost && !S.editable);
+  const names = { '3d': 'v3d', plan: 'vplan', front: 'vfront', side: 'vside' };
+  document.querySelectorAll('#views button').forEach(b => { b.textContent = t(names[b.dataset.v]); b.classList.toggle('on', b.dataset.v === eng.getView()); });
+  $('#notesBtn').textContent = S.showNotes ? t('hideNotes') : t('showNotes');
+  $('#langSel').value = lang;
+  const r = S.rooms.find(x => x.id === S.room) || S.rooms[0]; $('#roomTag').textContent = `${roomName(r)} · 7 × 5 m`;
+}
+function renderLeft() {
+  const el = $('#left'), top = el.scrollTop;
+  let h = `<div class="sec"><h3>${t('rooms')}</h3><div class="rooms">`;
+  for (const r of S.rooms) h += `<div class="room ${r.id === S.room ? 'active' : ''}" data-act="room" data-id="${esc(r.id)}"><span class="ico">${r.id === 'main' ? '🏠' : '🎬'}</span><span>${esc(roomName(r))}</span><span class="cnt">${roomObjs(r.id).length}</span></div>`;
+  h += `</div>`;
+  if (S.room === 'main') h += `<div class="small muted" style="margin-top:6px">${t('mainHint')}</div>`;
+  if (S.editable) {
+    h += `<div class="row" style="margin-top:8px"><button class="primary grow" data-act="addRoom">${t('addRoom')}</button></div>`;
+    h += `<div class="row" style="margin-top:6px"><button class="grow" data-act="renameRoom" data-id="${esc(S.room)}" title="${t('rename')}">✎ ${t('rename')}</button><button data-act="dupRoom" data-id="${esc(S.room)}" title="${t('dupRoom')}">⧉</button>${S.room !== 'main' ? `<button data-act="delRoom" data-id="${esc(S.room)}" title="${t('deleteRoom')}">🗑</button>` : ''}</div>`;
+  }
+  h += `</div>`;
+  if (S.editable) {
+    h += `<div class="sec"><h3>${t('catalog')}</h3>`;
+    for (const c of CATEGORIES) {
+      h += `<details class="cat" data-cat="${c.id}" ${openCats.has(c.id) ? 'open' : ''}><summary>${esc(c[lang] || c.de)}</summary><div class="tiles">`;
+      for (const d of Object.values(DEFS).filter(x => x.cat === c.id)) h += `<div class="tile" data-act="tile" data-type="${d.id}"><div class="n">${esc(typeName(d.id, lang, S.catalog))}</div><div class="m">${d.w} × ${d.d} × ${d.h} cm</div><span class="ed" data-act="tileEdit" data-type="${d.id}" title="${t('rename')}">✎</span></div>`;
+      h += `</div></details>`;
+    }
+    h += `</div>`;
+  }
+  const people = roomObjs(S.room).filter(o => o.type === 'person');
+  h += `<div class="sec"><h3>${t('cast')} <span class="muted small">${S.room === 'main' ? t('castMain') : ''}</span></h3>`;
+  const pav = o => `<span class="pav" style="background-color:${groupColor(o.group)};${o.photo ? `background-image:url(${o.photo})` : ''}">${o.photo ? '' : esc((o.name || '?').trim().slice(0, 2).toUpperCase())}</span>`;
+  if (!people.length) h += `<div class="muted small">${t('castNone')}</div>`;
+  for (const g of PERSON_GROUPS) { const l = people.filter(p => (p.group || 'sonstige') === g.id); if (l.length) h += `<div class="grp"><i style="background:${g.color}"></i>${esc(g[lang] || g.de)}</div>` + l.map(o => `<div class="person ${S.sel.has(o.id) ? 'sel' : ''}" data-act="person" data-id="${o.id}">${pav(o)}<span>${esc(o.name)}</span></div>`).join(''); }
+  if (S.room !== 'main' && S.editable) {
+    const have = new Set(people.map(p => p.src || p.id));
+    const pool = roomObjs('main').filter(o => o.type === 'person' && !have.has(o.id));
+    h += `<div class="lbl" style="margin-top:12px">${t('castFromMain')}</div>`;
+    if (!pool.length) h += `<div class="muted small">${t('castAllIn')}</div>`;
+    for (const g of PERSON_GROUPS) { const l = pool.filter(p => (p.group || 'sonstige') === g.id); if (l.length) h += `<div class="grp"><i style="background:${g.color}"></i>${esc(g[lang] || g.de)}</div>` + l.map(p => `<div class="person" data-act="addFromMain" data-id="${p.id}">${pav(p)}<span>${esc(p.name)}</span><button class="add">+</button></div>`).join(''); }
+    const mainP = roomObjs('main').filter(o => o.type === 'person').sort((x, y) => (/^(Urs|Kunde|Creator)/i.test(y.name) ? 1 : 0) - (/^(Urs|Kunde|Creator)/i.test(x.name) ? 1 : 0) || x.name.localeCompare(y.name));
+    if (mainP.length) {
+      if (!mainP.find(p => p.id === varSelP)) varSelP = mainP[0].id;
+      const L3 = (a2, b2, c2) => lang === 'en' ? b2 : lang === 'zh' ? c2 : a2;
+      h += `<div class="lbl" style="margin-top:12px">${L3('Variante hinzufügen (z. B. Urs rennend, Yoga-Urs …)', 'Add variant (e.g. running Urs, yoga Urs …)', '添加变体（如跑步的 Urs、瑜伽 Urs …）')}</div><select id="varP">${mainP.map(p => `<option value="${p.id}" ${p.id === varSelP ? 'selected' : ''}>${esc(splitTag(p.name).base)}</option>`).join('')}</select><select id="varPose" style="margin-top:6px">${POSE_LIST.map(q => `<option value="${q[0]}" ${q[0] === varSelPose ? 'selected' : ''}>${esc(q[lang === 'en' ? 2 : lang === 'zh' ? 3 : 1])}</option>`).join('')}</select><button class="grow" style="margin-top:6px;width:100%" data-act="addVariant">+ ${L3('In diesen Raum', 'Add to this room', '加入此房间')}</button>`;
+    }
+  }
+  h += `</div>`;
+  h += `<div class="sec"><h3>${t('roomSize')}</h3><div class="roomsize"><b>700</b>×<b>500</b>×<b>${ROOM.h}</b> cm</div><label class="row" style="margin-top:10px"><input type="checkbox" id="snap" ${S.snap ? 'checked' : ''}> ${t('snap')}</label></div>`;
+  el.innerHTML = h; el.scrollTop = top;
+}
+let propsKey = '';
+function renderRight(force) {
+  const el = $('#right'), objs = selObjs(), key = objs.map(o => o.id).join(',') + (S.editable ? 'E' : 'V') + lang;
+  if (!force && key === propsKey && objs.length) return updatePropsValues();
+  propsKey = key; const top = el.scrollTop; const ro = S.editable ? '' : 'disabled';
+  let h = '';
+  if (!S.editable) h += `<div class="sec"><div class="muted">${t('viewOnly')}</div></div>`;
+  h += `<div class="sec"><h3>${t('props')}</h3>`;
+  if (!objs.length) h += `<div class="muted">${t('nothingSelected')}</div>`;
+  else if (objs.length > 1) {
+    h += `<div><b>${objs.length}</b> ×</div>` + (S.editable ? ROTBTNS : '');
+    if (S.editable) h += `<div class="row" style="margin-top:8px"><button class="grow" data-act="dup">${t('duplicate')}</button><button class="grow" data-act="del">${t('delete')}</button></div>` + copyBlock();
+  } else {
+    const o = objs[0], d = DEFS[o.type];
+    h += `<div class="small-type">${esc(typeName(o.type, lang, S.catalog))}</div>
+      <div class="lbl">${t('name')}</div><input type="text" data-f="name" value="${esc(o.name)}" placeholder="${esc(typeName(o.type, lang, S.catalog))}" ${ro}>
+      <div class="lbl">${t('note')}</div><textarea data-f="note" ${ro}>${esc(o.note)}</textarea>
+      <div class="lbl">${t('size')}</div><div class="g3"><input type="number" data-f="w" min="1" value="${o.w}" ${ro}><input type="number" data-f="d" min="1" value="${o.d}" ${ro}><input type="number" data-f="h" min="1" value="${o.h}" ${ro}></div>
+      <div class="lbl">${t('pos')}</div><div class="g2"><input type="number" data-f="px" value="${Math.round(o.x + ROOM.w / 2)}" ${ro}><input type="number" data-f="pz" value="${Math.round(o.z + ROOM.d / 2)}" ${ro}></div>
+      <div class="g2"><div><div class="lbl">${t('elev')}</div><input type="number" data-f="y" min="0" value="${o.y || 0}" ${ro}></div><div><div class="lbl">${t('rot')}</div><input type="number" data-f="rot" value="${o.rot || 0}" ${ro}></div></div>` + (S.editable ? ROTBTNS : '');
+    if (o.type === 'person') {
+      h += `<div class="g2" style="margin-top:8px"><label class="row"><input type="checkbox" data-f="basket" ${o.basket ? 'checked' : ''} ${ro}> ${['Einkaufskorb dabei', 'Carries basket', '带购物篮'][lang === 'en' ? 1 : lang === 'zh' ? 2 : 0]}</label><div><div class="lbl">${['Bizeps (×)', 'Biceps (×)', '二头肌 (×)'][lang === 'en' ? 1 : lang === 'zh' ? 2 : 0]}</div><input type="number" data-f="bicep" min="1" max="4" step="0.1" value="${o.bicep || 1}" ${ro}></div></div>`;
+      h += `<div class="lbl">${['Aktion / Pose', 'Action / pose', '动作 / 姿势'][lang === 'en' ? 1 : lang === 'zh' ? 2 : 0]}</div><select data-f="pose" ${ro}>${POSE_LIST.map(q => `<option value="${q[0]}" ${q[0] === (o.pose || 'stand') ? 'selected' : ''}>${esc(q[lang === 'en' ? 2 : lang === 'zh' ? 3 : 1])}</option>`).join('')}</select>
+      <div class="lbl">${t('group')}</div><select data-f="group" ${ro}>${PERSON_GROUPS.map(g => `<option value="${g.id}" ${g.id === (o.group || 'sonstige') ? 'selected' : ''}>${esc(g[lang] || g.de)}</option>`).join('')}</select>
+        <div class="lbl">${t('photo')}</div><div class="row">${S.editable ? `<button data-act="upload" data-kind="photo">${t('photoUp')}</button>${o.photo ? `<button data-act="rmimg" data-kind="photo">${t('remove')}</button>` : ''}` : ''}</div>`;
+    } else {
+      h += `<div class="lbl">${t('color')}</div><div class="sw">${COLORS.map(c => `<i style="background:${c}" data-act="color" data-c="${c}"></i>`).join('')}<input type="color" data-f="color" value="${/^#[0-9a-f]{6}$/i.test(o.color) ? o.color : '#888888'}" ${ro}></div>`;
+      if (d.img) h += `<div class="lbl">${t('image')}</div>${o.img ? `<img class="imgprev" src="${o.img}">` : ''}<div class="row">${S.editable ? `<button data-act="upload" data-kind="img">${t('upload')}</button>${o.img ? `<button data-act="rmimg" data-kind="img">${t('remove')}</button>` : ''}` : ''}</div>`;
+    }
+    if (S.editable) h += `<div class="row" style="margin-top:12px"><button class="grow" data-act="dup">${t('duplicate')}</button><button class="grow" data-act="del">${t('delete')}</button></div>` + copyBlock();
+  }
+  h += `</div>`;
+  h += `<div class="sec"><h3>${t('versions')}</h3>${S.editable ? `<button class="primary" style="width:100%;margin-bottom:6px" data-act="saveVer">${t('saveVersion')}</button>` : ''}`;
+  if (!S.versions.length) h += `<div class="muted small">${t('noVersions')}</div>`;
+  for (const v of S.versions) h += `<div class="ver"><span title="${esc(new Date(v.ts).toLocaleString())}">${esc(v.name)}<br><small class="muted">${esc(new Date(v.ts).toLocaleString())}</small></span>${S.editable ? `<button data-act="openVer" data-id="${v.id}">${t('open')}</button><button data-act="delVer" data-id="${v.id}">🗑</button>` : ''}</div>`;
+  h += `</div>`;
+  h += `<div class="sec"><h3>${t('export3d')} <span class="muted small" style="text-transform:none">${t('exportScope')}</span></h3><button style="width:100%" data-act="export">${t('exportZip')}</button></div>`;
+  h += `<div class="sec"><h3>${t('layoutFile')}</h3><div class="row"><button class="grow" data-act="jsonDown">${t('download')}</button>${S.editable ? `<button class="grow" data-act="jsonOpen">${t('openFile')}</button>` : ''}</div></div>`;
+  el.innerHTML = h; el.scrollTop = top;
+}
+function copyBlock() {
+  const others = S.rooms.filter(r => r.id !== S.room); if (!others.length) return '';
+  return `<div class="lbl">${t('copyToRoom')}</div><div class="row"><select data-f="target" class="grow">${others.map(r => `<option value="${esc(r.id)}">${esc(roomName(r))}</option>`).join('')}</select></div><div class="row" style="margin-top:6px"><button class="grow" data-act="copyTo">${t('copyToRoom')}</button><button class="grow" data-act="moveTo">${t('moveToRoom')}</button></div>`;
+}
+function updatePropsValues() {
+  const o = selObjs()[0]; if (!o) return;
+  const vals = { name: o.name, note: o.note, w: o.w, d: o.d, h: o.h, px: Math.round(o.x + ROOM.w / 2), pz: Math.round(o.z + ROOM.d / 2), y: o.y || 0, rot: o.rot || 0, group: o.group };
+  document.querySelectorAll('#right [data-f]').forEach(i => { const f = i.dataset.f; if (f in vals && document.activeElement !== i && String(i.value) !== String(vals[f] ?? '')) i.value = vals[f] ?? ''; });
+}
+function renderAll() { renderHeader(); renderStatus(); renderAvatars(); renderLeft(); renderRight(true); }
+
+// ---------- Engine ----------
+let dragSnap = [], dragTimer = null; const dragIds = new Set(), dragPending = new Set();
+const eng = createEngine($('#gl'), $('#overlay'), S, {
+  pick(id, additive) {
+    if (additive) { S.sel.has(id) ? S.sel.delete(id) : S.sel.add(id); } else if (!S.sel.has(id)) S.sel = new Set([id]);
+    eng.refreshSelection(); eng.rebuildOverlay(); renderRight(false); renderLeft(); sendPresence();
+  },
+  clear() { if (S.sel.size) { S.sel.clear(); eng.refreshSelection(); eng.rebuildOverlay(); renderRight(true); renderLeft(); sendPresence(); } },
+  togglePin(id) { S.openNotes.has(id) ? S.openNotes.delete(id) : S.openNotes.add(id); eng.rebuildOverlay(); },
+  dragStart(ids) { dragSnap = ids.map(id => clone(S.objects[id])); ids.forEach(i => dragIds.add(i)); },
+  move(ups) { for (const u of ups) { const o = S.objects[u.id]; o.x = u.x; o.z = u.z; dragPending.add(u.id); } eng.updateTransforms(); updatePropsValues(); if (!dragTimer) dragTimer = setTimeout(flushDrag, 90); },
+  dragEnd() { clearTimeout(dragTimer); flushDrag(); undoStack.push(dragSnap.map(o => ({ op: 'patch', id: o.id, p: { x: o.x, z: o.z } }))); setTimeout(() => dragIds.clear(), 600); renderLeft(); },
+});
+function flushDrag() { dragTimer = null; for (const id of dragPending) if (S.objects[id]) enqueue({ kind: 'patch', id, p: { x: S.objects[id].x, z: S.objects[id].z } }); dragPending.clear(); }
+
+// ---------- Dateien ----------
+function resizeImage(file, max, cb) {
+  const r = new FileReader();
+  r.onload = () => { const im = new Image(); im.onload = () => {
+    let s = Math.min(1, max / Math.max(im.width, im.height)), out = '';
+    for (const q of [0.84, 0.7, 0.55]) { const cv = document.createElement('canvas'); cv.width = Math.max(1, Math.round(im.width * s)); cv.height = Math.max(1, Math.round(im.height * s)); cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height); out = cv.toDataURL('image/jpeg', q); if (out.length < 200000) break; s *= 0.75; }
+    cb(out);
+  }; im.src = r.result; }; r.readAsDataURL(file);
+}
+async function saveFile(blob, filename) {
+  if (!caps.downloads) { toast('Download in dieser Ansicht nicht verfügbar'); return; }
+  try { await caps.downloads.save({ filename, data: blob }); } catch (e) { if (!e || e.code !== 'declined') toast('Download nicht möglich'); }
+}
+let uploadTarget = null;
+
+// ---------- Events ----------
+$('#left').addEventListener('click', async e => {
+  const a = e.target.closest('[data-act]'); if (!a) return; const act = a.dataset.act, id = a.dataset.id;
+  if (act === 'room') setRoom(id);
+  else if (act === 'addRoom') addRoom(); else if (act === 'renameRoom') renameRoom(id); else if (act === 'dupRoom') dupRoom(id); else if (act === 'delRoom') delRoom(id);
+  else if (act === 'tileEdit') { e.stopPropagation(); const ty = a.dataset.type; const n = await askText(t('renamePrompt'), S.catalog[ty] || ''); if (n !== null) commit([{ op: 'cat', type: ty, name: n.trim() }], false); }
+  else if (act === 'tile') addFromCatalog(a.dataset.type);
+  else if (act === 'person') { S.sel = new Set([id]); eng.refreshSelection(); eng.rebuildOverlay(); renderRight(true); renderLeft(); sendPresence(); }
+  else if (act === 'addVariant') addVariant();
+  else if (act === 'addFromMain') { if (S.objects[id]) copyObjects([id], S.room, false); }
+});
+$('#left').addEventListener('toggle', e => { const d = e.target.closest && e.target.closest('details.cat'); if (d) { d.open ? openCats.add(d.dataset.cat) : openCats.delete(d.dataset.cat); } }, true);
+$('#left').addEventListener('change', e => { if (e.target.id === 'snap') S.snap = e.target.checked; else if (e.target.id === 'varP') varSelP = e.target.value; else if (e.target.id === 'varPose') varSelPose = e.target.value; });
+$('#right').addEventListener('click', async e => {
+  const a = e.target.closest('[data-act]'); if (!a) return; const act = a.dataset.act;
+  if (act === 'dup') duplicateSel(); else if (act === 'del') deleteSel();
+  else if (act === 'rot') rotateSel(Number(a.dataset.step));
+  else if (act === 'color') patchObjects(selObjs().map(o => ({ id: o.id, p: { color: a.dataset.c } })));
+  else if (act === 'upload') { uploadTarget = a.dataset.kind; $('#fileImg').value = ''; $('#fileImg').click(); }
+  else if (act === 'rmimg') patchObjects(selObjs().map(o => ({ id: o.id, p: { [a.dataset.kind]: '' } })));
+  else if (act === 'copyTo' || act === 'moveTo') { const tg = $('#right [data-f="target"]').value; copyObjects([...S.sel], tg, act === 'moveTo'); }
+  else if (act === 'saveVer') { const n = await askText(t('versionName'), new Date().toLocaleDateString()); if (n) saveVersion(n); }
+  else if (act === 'openVer') openVersion(a.dataset.id);
+  else if (act === 'delVer') { enqueue({ kind: 'delver', id: a.dataset.id }); S.versions = S.versions.filter(v => v.id !== a.dataset.id); renderRight(true); }
+  else if (act === 'export') {
+    try {
+      const r = S.rooms.find(x => x.id === S.room), nm = `${roomName(r)}`.replace(/[^\w-]+/g, '_') || 'raum';
+      const zip = new JSZip(); zip.file(nm + '.glb', await eng.exporters.glb()); zip.file(nm + '.obj', await eng.exporters.obj());
+      await saveFile(await zip.generateAsync({ type: 'blob' }), `departd-${nm}-3d.zip`);
+    } catch (err) { toast('Export fehlgeschlagen'); }
+  }
+  else if (act === 'jsonDown') saveFile(new Blob([JSON.stringify({ format: 'departd-mockup', version: 1, rooms: S.rooms.map(r => ({ id: r.id, name: r.name })), objects: S.objects, catalog: S.catalog })], { type: 'application/json' }), 'departd-layout.json');
+  else if (act === 'jsonOpen') { $('#fileJson').value = ''; $('#fileJson').click(); }
+});
+let colorTimer;
+$('#right').addEventListener('change', e => {
+  const i = e.target, f = i.dataset.f; if (!f || f === 'target' || !S.editable) return; const o = selObjs()[0]; if (!o) return;
+  let p = {};
+  if (f === 'basket') p.basket = i.checked; else if (f === 'bicep') { const bv = parseFloat(i.value); p.bicep = isFinite(bv) ? Math.min(4, Math.max(1, Math.round(bv * 10) / 10)) : 1; }
+  else if (f === 'name' || f === 'note') p[f] = i.value; else if (f === 'group') p.group = i.value; else if (f === 'pose') { p.pose = i.value; if (o.type === 'person') p.name = nameFor(splitTag(o.name).base, p.pose); } else if (f === 'color') { clearTimeout(colorTimer); p.color = i.value; }
+  else {
+    const v = parseFloat(i.value); if (!isFinite(v)) return renderRight(true);
+    if (f === 'w' || f === 'd' || f === 'h') p[f] = Math.min(2000, Math.max(1, Math.round(v)));
+    else if (f === 'y') p.y = Math.min(500, Math.max(0, Math.round(v)));
+    else if (f === 'rot') p.rot = ((Math.round(v) % 360) + 360) % 360;
+    else if (f === 'px') p.x = Math.round(v - ROOM.w / 2); else if (f === 'pz') p.z = Math.round(v - ROOM.d / 2);
+    const m = { ...o, ...p }; const c = clampPos(m, m.x, m.z); p.x = c.x; p.z = c.z;
+  }
+  patchObjects([{ id: o.id, p }]); renderRight(true);
+});
+$('#right').addEventListener('input', e => { if (e.target.dataset.f === 'color') { clearTimeout(colorTimer); const v = e.target.value, o = selObjs()[0]; colorTimer = setTimeout(() => o && patchObjects([{ id: o.id, p: { color: v } }]), 120); } });
+$('#fileImg').addEventListener('change', e => {
+  const f = e.target.files[0], o = selObjs()[0]; if (!f || !o) return; const kind = uploadTarget;
+  resizeImage(f, kind === 'photo' ? 256 : 700, url => { patchObjects([{ id: o.id, p: { [kind]: url } }]); renderRight(true); });
+});
+$('#fileJson').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return; const r = new FileReader();
+  r.onload = async () => { try {
+    const j = JSON.parse(r.result); if (!Array.isArray(j.rooms) || typeof j.objects !== 'object') throw 0;
+    const objects = {}; for (const [id, o] of Object.entries(j.objects)) if (o && DEFS[o.type] && j.rooms.find(x => x.id === o.room)) objects[id] = o;
+    const rooms = j.rooms.map(x => ({ id: String(x.id), name: String(x.name || 'Raum') })); if (!rooms.find(x => x.id === 'main')) rooms.unshift({ id: 'main', name: 'Hauptraum' });
+    if (await askConfirm(t('confirmImport'))) applyState({ rooms, objects, catalog: j.catalog || {} }, false);
+  } catch (err) { toast('Ungültige Datei'); } };
+  r.readAsText(f);
+});
+$('#views').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { eng.setView(b.dataset.v); renderHeader(); } });
+$('#notesBtn').addEventListener('click', () => { S.showNotes = !S.showNotes; eng.rebuildOverlay(); renderHeader(); });
+$('#langSel').addEventListener('change', e => { lang = e.target.value; ls.set('dm_lang', lang); t = makeT(lang); renderAll(); propsKey = ''; renderRight(true); });
+window.addEventListener('keydown', e => {
+  const tg = e.target; if (tg && (tg.tagName === 'INPUT' || tg.tagName === 'TEXTAREA' || tg.tagName === 'SELECT')) return;
+  const mod = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
+  if (mod && k === 'z') { e.preventDefault(); undo(); }
+  else if (mod && k === 'c' && S.sel.size) { e.preventDefault(); copySel(false); }
+  else if (mod && k === 'x' && S.sel.size) { e.preventDefault(); copySel(true); }
+  else if (mod && k === 'v') { e.preventDefault(); pasteClip(); }
+  else if (mod && k === 'a') { e.preventDefault(); selectAll(); }
+  else if (mod && k === 'd') { e.preventDefault(); duplicateSel(); }
+  else if (!mod && S.editable && S.sel.size && ['arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) {
+    e.preventDefault(); const step = e.shiftKey ? 50 : e.altKey ? 1 : 10, D = eng.arrowDirs();
+    const v = k === 'arrowup' ? [D.fwd.x, D.fwd.z] : k === 'arrowdown' ? [-D.fwd.x, -D.fwd.z] : k === 'arrowright' ? [D.right.x, D.right.z] : [-D.right.x, -D.right.z];
+    patchObjects(selObjs().map(o => { const c = clampPos(o, o.x + v[0] * step, o.z + v[1] * step); return { id: o.id, p: { x: c.x, z: c.z } }; }));
+  }
+  else if (!mod && k === 'r' && S.sel.size) { e.preventDefault(); rotateSel(e.shiftKey ? -90 : 90); }
+  else if ((e.key === 'Delete' || e.key === 'Backspace') && S.sel.size) { e.preventDefault(); deleteSel(); }
+  else if (e.key === 'Escape') { S.sel.clear(); eng.refreshSelection(); eng.rebuildOverlay(); renderRight(true); renderLeft(); sendPresence(); }
+});
+
+// ---------- Start ----------
+
+// ---------- KI-Leiste: Änderungen per Text ----------
+const aiBar = $('#aiBar'), aiIn = $('#aiIn'), aiGo = $('#aiGo'), aiSt = $('#aiSt');
+let aiBusy = false;
+function aiVisible() { aiBar.hidden = !(caps.sample && S.editable); }
+const POSE_IDS = POSE_LIST.map(q => q[0]);
+function aiContext() {
+  const cur = S.room, rooms = S.rooms.map(r => ({ id: r.id, name: r.name }));
+  const fmt = o => ({ id: o.id, type: o.type, name: o.name, x: Math.round(o.x), z: Math.round(o.z), y: Math.round(o.y || 0), rot: Math.round(o.rot || 0), w: Math.round(o.w), d: Math.round(o.d), h: Math.round(o.h), ...(o.pose ? { pose: o.pose } : {}), ...(o.basket ? { basket: true } : {}), ...(o.bicep && o.bicep !== 1 ? { bicep: o.bicep } : {}), ...(o.src ? { src: o.src } : {}) });
+  const main = Object.values(S.objects).filter(o => o.room === 'main' && o.type === 'person').map(o => ({ id: o.id, name: o.name, group: o.group }));
+  const types = Object.values(DEFS).map(d => `${d.id}(${d.w}x${d.d}x${d.h})`).join(', ');
+  return { rooms, currentRoom: cur, selected: [...S.sel], currentRoomObjects: Object.values(S.objects).filter(o => o.room === cur).slice(0, 120).map(fmt), mainPersons: main, types, poses: POSE_IDS.join(', ') };
+}
+function aiPrompt(userText) {
+  const c = aiContext();
+  return `Du bist der Layout-Assistent eines 3D-Raumplaners (departd Mockup, Kaufland x Urs Kalecinski "DON'T PANIC"). Setze die Anweisung des Nutzers in Änderungen an der Szene um.
+Koordinaten: cm, Mittelpunkt-basiert. Jeder Set-Raum ist 700 (x: -350..350) × 500 (z: -250..250); Vorderseite = +z. Rotation in Grad um die Hochachse. Der Hauptraum ("main") ist der Pool aller Personen/Objekte; Set-Räume enthalten Kopien (Personen mit "src" = id der Hauptraum-Person).
+Aktuelle Räume: ${JSON.stringify(c.rooms)}
+Aktueller Raum: ${c.currentRoom}
+Ausgewählte Objekte: ${JSON.stringify(c.selected)}
+Objekte im aktuellen Raum: ${JSON.stringify(c.currentRoomObjects)}
+Personen im Hauptraum: ${JSON.stringify(c.mainPersons)}
+Objekttypen (Breite x Tiefe x Höhe in cm): ${c.types}
+Posen für Personen: ${c.poses}
+Antworte AUSSCHLIESSLICH mit JSON: {"summary":"kurze Zusammenfassung auf Deutsch","ops":[...]}
+Erlaubte ops:
+{"op":"addRoom","ref":"kurzer Schlüssel","name":"Raumname"}
+{"op":"add","room":"<Raum-id oder ref oder Name>","type":"<Typ>","name":"optional","x":0,"z":0,"y":0,"rot":0,"w":null,"d":null,"h":null,"color":"#rrggbb optional","note":"optional"}
+{"op":"addPerson","room":"<Raum>","main":"<id der Hauptraum-Person>","pose":"<Pose>","x":0,"z":0,"rot":0,"basket":false,"bicep":1}
+{"op":"set","id":"<Objekt-id>","p":{"x":..,"z":..,"y":..,"rot":..,"w":..,"d":..,"h":..,"color":..,"name":..,"note":..,"pose":..,"basket":..,"bicep":..}}
+{"op":"del","id":"<Objekt-id>"}
+Regeln: Nur existierende Ids und Typen verwenden. Wenn nichts anderes gesagt ist, beziehe dich auf den aktuellen Raum bzw. die ausgewählten Objekte. Keine Überlappungen, innerhalb des Raums bleiben. Wenn die Anweisung unklar oder unmöglich ist, gib ops: [] und erkläre es in summary.
+ANWEISUNG DES NUTZERS: ${userText}`;
+}
+const num = (v, lo, hi) => { v = Number(v); return Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : null; };
+function aiBuild(plan) {
+  const ops = [], newRooms = {}; let nAdd = 0, nSet = 0, nDel = 0, nRoom = 0;
+  const roomId = r => { if (r == null) return S.room; if (newRooms[r]) return newRooms[r]; const f = S.rooms.find(x => x.id === r || x.name === r); return f ? f.id : (S.rooms.find(x => x.id === S.room) ? S.room : 'main'); };
+  const clampP = (p, o) => {
+    const q = {};
+    for (const [k, [lo, hi]] of Object.entries({ x: [-350, 350], z: [-250, 250], y: [0, 600], rot: [-3600, 3600], w: [1, 800], d: [1, 800], h: [1, 600], bicep: [0.5, 3] })) if (k in p) { const v = num(p[k], lo, hi); if (v != null) q[k] = k === 'bicep' ? v : Math.round(v); }
+    if ('color' in p && /^#[0-9a-f]{6}$/i.test(p.color)) q.color = p.color;
+    if ('name' in p) q.name = String(p.name).slice(0, 80);
+    if ('note' in p) q.note = String(p.note).slice(0, 400);
+    if ('pose' in p && POSE_IDS.includes(p.pose) && (!o || o.type === 'person')) q.pose = p.pose;
+    if ('basket' in p && (!o || o.type === 'person')) q.basket = !!p.basket;
+    return q;
+  };
+  for (const op of (plan.ops || []).slice(0, 60)) {
+    if (!op || typeof op !== 'object') continue;
+    if (op.op === 'addRoom') { const id = 'r' + uid(); newRooms[op.ref || op.name] = id; newRooms[op.name] = id; ops.push({ op: 'room', room: { id, name: String(op.name || 'Set').slice(0, 60) } }); nRoom++; }
+    else if (op.op === 'add' && DEFS[op.type] && op.type !== 'person') {
+      const rid = roomId(op.room); const o = newObject(op.type, rid); Object.assign(o, clampP(op, null)); o.room = rid;
+      if (!('x' in op) && !('z' in op)) { const sp = freeSpot(o, rid, roomObjs(rid).length + nAdd); o.x = sp.x; o.z = sp.z; }
+      ops.push({ op: 'put', o }); nAdd++;
+    } else if (op.op === 'addPerson') {
+      const m = S.objects[op.main]; if (!m || m.room !== 'main' || m.type !== 'person') continue;
+      const rid = roomId(op.room); if (rid === 'main') continue;
+      const pose = POSE_IDS.includes(op.pose) ? op.pose : m.pose;
+      const c = clone(m); c.id = uid(); c.room = rid; c.src = m.id; c.pose = pose; c.name = nameFor(splitTag(m.name).base, pose); c.rot = 0; c.y = 0;
+      Object.assign(c, clampP({ x: op.x, z: op.z, rot: op.rot, basket: op.basket, bicep: op.bicep }, c));
+      if (op.x == null && op.z == null) { const sp = freeSpot(c, rid, roomObjs(rid).length + nAdd); c.x = sp.x; c.z = sp.z; }
+      ops.push({ op: 'put', o: c }); nAdd++;
+    } else if (op.op === 'set' && S.objects[op.id] && op.p && typeof op.p === 'object') {
+      const q = clampP(op.p, S.objects[op.id]); if (Object.keys(q).length) { ops.push({ op: 'patch', id: op.id, p: q }); nSet++; }
+    } else if (op.op === 'del' && S.objects[op.id]) { ops.push({ op: 'del', id: op.id }); nDel++; }
+  }
+  return { ops, nAdd, nSet, nDel, nRoom };
+}
+async function aiRun() {
+  const text = aiIn.value.trim(); if (!text || aiBusy) return;
+  if (!S.editable) { toast(t('viewOnly')); return; }
+  aiBusy = true; aiGo.disabled = true; aiSt.textContent = 'Claude denkt nach …';
+  try {
+    const plan = await caps.sample.json(aiPrompt(text), { modelTier: 'default', cache: false });
+    if (!plan || typeof plan !== 'object' || !Array.isArray(plan.ops)) throw new Error('Antwort unlesbar');
+    const r = aiBuild(plan);
+    if (r.ops.length) {
+      const had = new Set(Object.keys(S.objects));
+      // Rauminfos (ohne Undo) zuerst, Objekte danach als ein rückgängig-machbarer Schritt
+      const roomOps = r.ops.filter(o => o.op === 'room'), rest = r.ops.filter(o => o.op !== 'room');
+      if (roomOps.length) commit(roomOps, false);
+      if (rest.length && !commit(rest)) throw new Error('Nicht gespeichert');
+      const added = rest.filter(o => o.op === 'put' && !had.has(o.o.id)).map(o => o.o.id);
+      if (added.length) { S.sel = new Set(added.filter(id => S.objects[id] && S.objects[id].room === S.room)); eng.refresh(); renderRight(true); }
+      aiSt.textContent = `✓ ${plan.summary || 'Erledigt'} (+${r.nAdd} · ✎${r.nSet} · −${r.nDel}${r.nRoom ? ' · ' + r.nRoom + ' Raum' : ''}) – Strg+Z macht rückgängig`;
+      aiIn.value = '';
+    } else aiSt.textContent = (plan.summary || 'Keine Änderung nötig.') + ' (keine Änderungen)';
+  } catch (e) {
+    aiSt.textContent = e && e.code === 'not_granted' ? 'Zugriff auf Claude wurde nicht erlaubt.' : e && e.code === 'rate_limited' ? 'Gerade zu viele Anfragen – bitte kurz warten.' : 'Das hat nicht geklappt: ' + ((e && e.message) || 'Fehler');
+  }
+  aiBusy = false; aiGo.disabled = false;
+}
+aiGo.addEventListener('click', aiRun);
+aiIn.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); aiRun(); } });
+
+$('#pwBtn').addEventListener('click', async () => {
+  if (!(window.__selfhost && caps.user && caps.user.unlock) || S.editable) return;
+  const pw = await askText('Bearbeitungs-Passwort', ''); if (!pw) return;
+  const ok = await caps.user.unlock(pw);
+  if (ok) { S.editable = true; renderAll(); eng.refresh(); toast('Bearbeitung aktiv'); } else toast('Falsches Passwort');
+});
+renderAll(); eng.refresh(); initBackend();
+window.__dm = { S, eng, commit, caps };
+
+</script>
+</body></html>
