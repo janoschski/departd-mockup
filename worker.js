@@ -11,7 +11,7 @@ export default {
       const name = (url.searchParams.get('space') || 'kaufland-urs').toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 40) || 'kaufland-urs';
       return env.SPACE.get(env.SPACE.idFromName(name)).fetch(request);
     }
-    return env.ASSETS.fetch(request);
+    return new Response(HTML, { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' } });
   },
 };
 
